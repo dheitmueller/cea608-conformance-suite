@@ -1,0 +1,6 @@
+out/*.ts
+out/*.mp4
+__pycache__/
+.venv/
+*.pyc
+cards.json

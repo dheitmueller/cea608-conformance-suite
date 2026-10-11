@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Devin Heitmueller <devin.heitmueller@gmail.com>
+name: Build and release
+
+# A tag named v* publishes a GitHub Release with both streams.
+# "Run workflow" (manual) builds the streams and keeps them as workflow artifacts only.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create the release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # the burned-in version label comes from the git tag / revision
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ffmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          ffmpeg -hide_banner -version | head -1
+          ffmpeg -hide_banner -encoders | grep -E "libx264 |mpeg2video|ac3 "
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      - name: Build 720p59 (16:9)
+        run: python build.py --format 720p59
+
+      - name: Build 480i59 (4:3)
+        run: python build.py --format 480i59
+
+      - name: TESTS.md must match the committed copy
+        run: git diff --exit-code -- TESTS.md
+
+      - name: Assemble the release package
+        # What a user of the streams needs, nothing about how they were made:
+        # the streams, their description, the license of the streams, and checksums.
+        run: |
+          mkdir release
+          cp out/*.ts release/
+          cp TESTS.md release/TESTS.md
+          cp LICENSES/CC-BY-SA-4.0.txt release/LICENSE-CC-BY-SA-4.0.txt
+          cd release
+          sha256sum *.ts TESTS.md LICENSE-CC-BY-SA-4.0.txt > SHA256SUMS
+          ls -l
+          cat SHA256SUMS
+
+      - name: Keep the package as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: release/*
+          retention-days: 14
+
+      - name: Create the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes "CEA-608 Conformance Suite $GITHUB_REF_NAME.
+
+          Download the stream for your video path:
+          - *-720p59-h264.ts : 1280x720 progressive, 16:9
+          - *-480i59-h264.ts : 720x480 interlaced, 4:3
+
+          TESTS.md describes every test card. The streams and TESTS.md are licensed CC BY-SA 4.0 (LICENSE-CC-BY-SA-4.0.txt). SHA256SUMS lists checksums."
