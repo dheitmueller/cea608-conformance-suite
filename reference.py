@@ -525,8 +525,12 @@ VIEWER = """<!doctype html>
  #info{padding:6px 12px;color:#aab}
  #pic{display:block;max-width:100%;max-height:calc(100vh - 110px);margin:0 auto}
  small{color:#889}
+ a{color:#8cd7ff}
+ #bar a{white-space:nowrap}
 </style>
 <div id="bar">
+ <a href="../index.html" title="Other stream format">&larr; all formats</a>
+ <a href="__REPO__" title="Project page: streams, test list, source">Project</a>
  <button id="prev" title="Left arrow">&larr; Previous</button>
  <select id="sel"></select>
  <button id="next" title="Right arrow">Next &rarr;</button>
@@ -572,7 +576,8 @@ show(parseInt(location.hash.slice(1) || '1', 10) - 1);
 
 
 def write_viewer(path, slides, fmt_name, version):
-    page = VIEWER.replace("__FORMAT__", html.escape(f"{fmt_name} {version}")).replace(
+    page = VIEWER.replace("__REPO__", html.escape(build.META["repo_url"], quote=True)).replace(
+        "__FORMAT__", html.escape(f"{fmt_name} {version}")).replace(
         "__SLIDES__", json.dumps(slides, ensure_ascii=False).replace("</", "<\\/"))
     with open(path, "w", encoding="utf-8") as f:
         f.write(page)
@@ -591,6 +596,8 @@ the stream you are testing, then step through the slides (or pick one from the l
 </ul>
 <p>These slides are the test author's reading of CTA-608-E, drawn by a small decoder model; see the project
 README. Licensed CC BY-SA 4.0.</p>
+<p>Project: <a href="{html.escape(build.META['repo_url'], quote=True)}">{html.escape(build.META['repo_url'])}</a>
+(the test streams, the list of test cards, and the source of these slides).</p>
 """)
 
 
