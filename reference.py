@@ -176,6 +176,11 @@ class Decoder:
                 self.style = list(DEFAULT_STYLE)
             else:
                 self.hidden.erase()
+                if not any(any(r) for r in self.shown.grid):
+                    # C.15: the row-15 default applies when no roll-up caption is currently displayed
+                    # (only an RU command with a caption on screen keeps the last base row)
+                    self.base, self.col = ROWS, 1
+                    self.style = list(DEFAULT_STYLE)
             depth = code - 0x23
             if self.mode == "roll" and depth < self.depth:
                 for r in range(1, self.base - depth + 1):
