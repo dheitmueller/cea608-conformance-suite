@@ -57,13 +57,17 @@ git tag v1.1
 git push origin v1.1          # the tag push starts the workflow
 ```
 
-The workflow checks out the tag, installs ffmpeg and Python, builds **both formats** (H.264) so the picture
+The workflow checks out the tag, installs ffmpeg and Python, builds **both formats** (H.264) and the reference slides so the picture
 carries the tag, checks that `TESTS.md` matches the committed copy, and creates a GitHub
 Release named after the tag. The release contains only what a user of the streams needs: the two `.ts`
-files, `TESTS.md`, `LICENSE-CC-BY-SA-4.0.txt` (the license of the streams and documentation) and `SHA256SUMS`.
+files, `CEA608-conformance-<tag>-reference.zip` (the reference slides, built by `reference.py`),
+`TESTS.md`, `LICENSE-CC-BY-SA-4.0.txt` (the license of the streams and documentation) and `SHA256SUMS`.
+
+The same slides are published to GitHub Pages by a second job in the workflow, so the site always shows the latest
+release. This needs a one-time repository setting: Settings > Pages > Build and deployment > Source: **GitHub Actions**.
 
 It can also be started by hand (Actions tab, "Run workflow"): that builds the streams and keeps them as workflow
-artifacts for 14 days without making a release; the version label of such a build is the short revision.
+artifacts for 14 days without making a release or touching the Pages site; the version label of such a build is the short revision.
 
 The Action builds on Ubuntu with the distribution's ffmpeg and DejaVu fonts, so the picture's typeface differs
 slightly from a macOS build. After a release, replace the README screenshot if the layout changed.

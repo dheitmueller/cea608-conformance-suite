@@ -27,6 +27,20 @@ positioning code, a caption style, a memory command, a signal-loss condition ...
 The streams are published as assets of each [GitHub release](https://github.com/dheitmueller/cea608-conformance-suite/releases) (download the `.ts` files from the latest one). The full list of test cards, with
 the purpose of each, is in [TESTS.md](TESTS.md).
 
+## Reference slides
+
+The slides for the latest release can be viewed online at https://dheitmueller.github.io/cea608-conformance-suite/ (no download needed). Each release also has a `-reference.zip` with the same files for offline use (unzip it and open `index.html`).
+There is a set of slides for each stream format, showing what every card should look like when the captions are rendered correctly, with Previous/Next
+buttons and a drop-down list to jump to any card, so you can follow along while the stream plays. Cards whose
+caption changes over time (roll-up, paint-on, erase, signal loss) have one slide per state. A dashed orange
+outline marks text that should flash (Flash On cannot be shown in a still).
+
+The slides are drawn from the stream's own caption data by a small decoder model written from CTA-608-E, so they are
+this project's reading of the specification, not the output of an independent decoder, and no product tested so far
+renders every card correctly. Where the specification allows more than one result (for example more than four rows,
+or the order of rows after a roll-up conflict), the slide shows the preferred behavior and the card text describes the
+alternative. Smooth-scroll animation is not shown; glyph shapes depend on the font used to draw the slides.
+
 Developers who want to modify or regenerate the stream: see [DEVELOPING.md](DEVELOPING.md).
 Found a problem, or want to contribute or make a derivative? See [CONTRIBUTING.md](CONTRIBUTING.md).
 

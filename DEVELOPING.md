@@ -12,6 +12,8 @@ If you want to send changes back, make a release or label a derivative stream, s
 | `testplan.py` | The test cards: one `@seg` function per card (title, expected result, spec references, caption script) |
 | `cea608.py` | The CEA-608 encoder: byte pairs, parity, control codes, character tables, scheduling helpers |
 | `build.py` | Renders the picture, encodes the video, injects the captions, muxes and patches the PMT; also writes `TESTS.md` and `cards.json` (see below) |
+| `reference.py` | Reference slides: replays the stream's caption pairs through a small CEA-608 decoder model written from CTA-608-E and draws what each card should look like, plus an HTML viewer (`python reference.py`, about 10 s, no ffmpeg needed). Output goes to `out/reference/` (git-ignored); `--zip DIR` makes the release zip |
+| `test_reference.py` | Checks that decoder model against the generator's own intended layout for the static pop-on cards (`python test_reference.py`); run it after changing `reference.py` or a card |
 | `TESTS.md` | Generated at every build from `testplan.py` (covering both formats). **Committed**, because the README links to it and it is browsable on GitHub: commit the regenerated copy with any change to the plan; the release workflow fails if it is stale |
 | `cards.json` | Machine-readable card list (ids, start times, durations, channels, references, expected results, per-format variants), generated at every build. **Not committed** (git-ignored); the validation tooling reads it after a build |
 | `images/test-pattern-720p59.png` | The annotated screenshot used in the README (a frame from card G02, callouts added). |

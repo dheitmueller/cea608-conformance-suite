@@ -1,5 +1,6 @@
 out/*.ts
 out/*.mp4
+out/reference/
 __pycache__/
 .venv/
 *.pyc
