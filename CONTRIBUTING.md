@@ -64,7 +64,9 @@ files, `CEA608-conformance-<tag>-reference.zip` (the reference slides, built by 
 `TESTS.md`, `LICENSE-CC-BY-SA-4.0.txt` (the license of the streams and documentation) and `SHA256SUMS`.
 
 The same slides are published to GitHub Pages by a second job in the workflow, so the site always shows the latest
-release. This needs a one-time repository setting: Settings > Pages > Build and deployment > Source: **GitHub Actions**.
+release. This needs two one-time repository settings: Settings > Pages > Build and deployment > Source: **GitHub Actions**,
+and Settings > Environments > `github-pages` > Deployment branches and tags: add a **Tag** rule with the pattern `v*`
+(by default only the default branch may deploy, so a release tag is rejected with "not allowed to deploy to github-pages").
 
 It can also be started by hand (Actions tab, "Run workflow"): that builds the streams and keeps them as workflow
 artifacts for 14 days without making a release or touching the Pages site; the version label of such a build is the short revision.
