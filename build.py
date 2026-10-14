@@ -437,11 +437,13 @@ def _trip(typ, pair):
 
 def cc_payload(items, cc_count):
     """A/53 part 4 cc_data for one picture.  `items` = [(cc_type, pair)] in transmission order: the NTSC
-    pairs come first, then one cc_valid=0/cc_type=11 end-of-packet marker and cc_valid=0/cc_type=00 padding
-    up to cc_count (CEA-CEB-10-A 26.3/26.4 p.42, Annex B Table 9 p.53)."""
-    trip = b"".join(_trip(t, p) for t, p in items) + bytes([0xFB, 0, 0]) \
-        + bytes([0xF8, 0, 0]) * (cc_count - len(items) - 1)
-    return bytes([0x40 | cc_count, 0xFF]) + trip + b"\xff"      # follows 'GA94' + user_data_type_code 0x03
+    pairs come first, then padding up to cc_count.  Padding is cc_valid=0 / cc_type=10 (0xFA 0x00 0x00): in
+    CTA-708-E 4.3.5 only cc_type 10 or 11 with cc_valid=0 is padding (and ends the CEA-608 data of the
+    structure); cc_valid=0 with cc_type 00 or 01 means "no CEA-608 waveform for this field" (card S03-S05
+    use that on purpose, see _trip) and must not be used to fill space."""
+    trip = b"".join(_trip(t, p) for t, p in items) + bytes([0xFA, 0, 0]) * (cc_count - len(items))
+    # CTA-708-E Table 2: reserved '1', process_cc_data_flag, zero_bit, cc_count (5 bits), reserved 0xFF
+    return bytes([0xC0 | cc_count, 0xFF]) + trip + b"\xff"      # follows 'GA94' + user_data_type_code 0x03
 
 
 def mpeg2_user_data(items, cc_count):
@@ -540,6 +542,50 @@ def patch_pmt(path):
         assert len(pkt) <= 188
         data[i:i + 188] = pkt + b"\xff" * (188 - len(pkt))
         n += 1
+    open(path, "wb").write(data)
+    return n
+
+
+def fix_h264_cc_header(path):
+    """ffmpeg's libx264 wrapper builds the T.35 SEI itself from the cc_data triplets and writes the two bytes
+    after 'GA94' + 0x03 as (0x40 | cc_count, 0x00).  CTA-708-E Table 2 defines them as (0xC0 | cc_count, 0xFF):
+    reserved '1', process_cc_data_flag, zero_bit, cc_count, then 8 reserved bits of '1'.  Rewrite them in the
+    finished transport stream (same length, no emulation-prevention byte is involved, nothing else moves).
+    Returns the number of headers changed."""
+    import bisect
+    data = bytearray(open(path, "rb").read())
+    vpid, segs, parts, pos = None, [], [], 0
+    for i in range(0, len(data), 188):
+        assert data[i] == 0x47, "lost TS sync"
+        pid = ((data[i + 1] & 0x1F) << 8) | data[i + 2]
+        afc = (data[i + 3] >> 4) & 3
+        if not afc & 1:
+            continue
+        off = 4 + (1 + data[i + 4] if afc & 2 else 0)
+        if vpid is None and data[i + 1] & 0x40 and bytes(data[i + off:i + off + 4]) == b"\x00\x00\x01\xe0":
+            vpid = pid
+        if pid == vpid:
+            segs.append((pos, i + off))
+            parts.append(bytes(data[i + off:i + 188]))
+            pos += 188 - off
+    joined = b"".join(parts)
+    starts = [p for p, _ in segs]
+
+    def file_offset(k):
+        j = bisect.bisect_right(starts, k) - 1
+        return segs[j][1] + (k - segs[j][0])
+    n, k = 0, 0
+    marker = b"\xb5\x00\x31GA94\x03"
+    while True:
+        k = joined.find(marker, k)
+        if k < 0 or k + len(marker) + 2 > len(joined):
+            break
+        h = k + len(marker)
+        if 0x40 <= joined[h] < 0x60 and joined[h + 1] == 0x00:
+            data[file_offset(h)] = 0xC0 | (joined[h] & 0x1F)
+            data[file_offset(h + 1)] = 0xFF
+            n += 1
+        k = h
     open(path, "wb").write(data)
     return n
 
@@ -700,6 +746,8 @@ def main():
                         "-metadata", f"service_provider={META['author']} {META['license']}",
                         "-metadata", f"service_name={META['name']} {VERSION[0]}",
                         out], check=True)
+    if a.codec == "h264":
+        print("fixed", fix_h264_cc_header(out), "cc_data headers (CTA-708-E Table 2)")
     if not a.no_caption_descriptor:
         print("patched", patch_pmt(out), "PMT packets")
     write_tests_md(os.path.join(HERE, "TESTS.md"), starts, total)
