@@ -114,7 +114,10 @@ class Decoder:
             self.mark()
 
     def spacing(self, **change):
-        """Mid-row codes, FON and the background/foreground attribute codes occupy one cell, shown as a space."""
+        """Mid-row codes, FON and the background/foreground attribute codes occupy one cell, shown as a space.
+        They set explicit attributes, so the C.7 rule that a character takes the attributes of its left neighbour
+        and ignores those of the PAC does not apply to them: they end the PAC's inheritance."""
+        self.inherit = False
         names = ("fg", "ul", "it", "bg", "al", "fl")
         for k, v in change.items():
             self.style[names.index(k)] = v

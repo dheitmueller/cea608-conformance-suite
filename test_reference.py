@@ -85,6 +85,26 @@ def cells(rows, name):
     return out
 
 
+def midrow_after_pac():
+    """A mid-row code sets explicit attributes: with a PAC and a Tab Offset before it and a character to its left
+    (how an SCC writer re-addresses a row) the run it starts must keep its colour (608-E C.7 and Table 51).
+    Returns the number of differences."""
+    f = Field(0)
+    c = Chan("CC1", f, 1, True)
+    c.popon(1.5, [testplan.R(5, "The"), testplan.R(5, "{b}Blue", col=4), testplan.R(7, "ab"), testplan.R(7, "{wu}under", col=3)])
+    fd = reference.FieldDecoder(f.pairs)
+    fd.run()
+    snap = fd.states[1][-1][1]
+    bad = 0
+    for row, col, ch, fg, ul in [(5, 5, "B", "b", False), (5, 8, "e", "b", False), (7, 4, "u", "w", True), (7, 8, "r", "w", True)]:
+        x = snap[row - 1][col - 1]
+        if not x or (x[0], x[1], x[2]) != (ch, fg, ul):
+            bad += 1
+            print(f"mid-row after PAC: row {row} col {col}: model {x[:3] if x else None}, intended {(ch, fg, ul)}")
+    print(f"mid-row code after a PAC: {bad} differ")
+    return bad
+
+
 def main():
     testplan.apply_format("720p59")
     want = intended()
@@ -111,6 +131,7 @@ def main():
                     if got.get(k) != w.get(k):
                         print(f"{cid} {name} row {k[0]} col {k[1]}: model {got.get(k)} intended {w.get(k)}")
     print(f"{checked} card/channel layouts checked, {bad} differ")
+    bad += midrow_after_pac()
     return 1 if bad else 0
 
 
