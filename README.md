@@ -18,13 +18,13 @@ This project is in no way affiliated with the Consumer Technology Association or
 
 ## What you get
 
-Two transport streams with the same 70 test cards (about 8 minutes 48 seconds each) that you play on the
+Two transport streams (each also available as a much smaller MP4, see "The MP4 version") with the same 70 test cards (about 8 minutes 48 seconds each) that you play on the
 decoder, player, set-top box or converter you want to check: a **16:9 stream at 720p59** and a **4:3 stream at
 480i59** (standard definition, interlaced). Each card exercises one caption feature (a character set, a
 positioning code, a caption style, a memory command, a signal-loss condition ...) and tells you, on screen,
 **what you should see** and **which part of the specification says so**.
 
-The streams are published as assets of each [GitHub release](https://github.com/dheitmueller/cea608-conformance-suite/releases) (download the `.ts` files from the latest one). The full list of test cards, with
+The streams are published as assets of each [GitHub release](https://github.com/dheitmueller/cea608-conformance-suite/releases) (download the `.ts` files, or the `.mp4` files where provided, from the latest one). The full list of test cards, with
 the purpose of each, is in [TESTS.md](TESTS.md).
 
 ## Reference slides
@@ -127,11 +127,23 @@ Not covered: CEA-708 (DTVCC) services, XDS data and Text mode (T1-T4).
 
 | | 720p59 (16:9) | 480i59 (4:3) |
 |---|---|---|
-| Container | MPEG-2 transport stream at a constant 4 Mbps | same |
+| Container | MPEG-2 transport stream at a constant 4 Mbps (an MP4 is also available, see below) | same |
 | Video | H.264 High, 1280x720 progressive, 59.94 fps, square pixels, 3.5 Mbps CBR | H.264 High, 720x480 **interlaced** (top field first), 29.97 frames (59.94 fields) per second, **anamorphic** (pixel aspect 8:9, display aspect 4:3), 3.5 Mbps CBR |
 | GOP | closed, 30 pictures, B-frames | closed, 15 frames, B-frames |
 | Audio | AC-3 stereo, 128 kbps (a short 1 kHz beep each second) | same |
 | Captions | CEA-608 as ATSC A/53 `cc_data` (ITU-T T.35 SEI). One pair per picture, alternating field 1 (CC1, CC2) and field 2 (CC3, CC4) | the same, but each frame carries **both** field pairs, field 2 first |
+
+### The MP4 version
+
+Each stream can also be built as a small **MP4** (`build.py --mp4`, H.264 only), for players and tools that do not take a transport
+stream, or when file size matters. It is made from the same picture and caption data, but encoded at constant quality (CRF 21,
+about 0.4 Mbps, roughly a tenth of the size of the 4 Mbps transport stream) with AAC stereo audio (96 kbps) instead of AC-3.
+
+**The captions are carried only in the video stream, as SEI, exactly as in the transport stream**: the ATSC A/53 `cc_data` (608) sits in the ITU-T T.35 `GA94` SEI of each H.264 access unit. The MP4 has **no separate caption
+track** (no QuickTime `c608`/`c708` track), and no program table, so there is no `caption_service_descriptor` either. A player
+or tool that reads captions from the H.264 SEI (ffmpeg, ccextractor, VLC and most broadcast-oriented decoders) shows them; one
+that only looks for a caption track (Apple's QuickTime and AVFoundation-based players, for example) may show none, which is then
+a finding about that product and not about the file. The MP4 is not meant for transmission, so it has no constant bit rate.
 
 Either format can also be generated with MPEG-2 video instead of H.264, and without the program-table caption
 descriptor; see [DEVELOPING.md](DEVELOPING.md). The program table carries an ATSC `caption_service_descriptor`
