@@ -13,6 +13,8 @@ If you want to send changes back, make a release or label a derivative stream, s
 | `cea608.py` | The CEA-608 encoder: byte pairs, parity, control codes, character tables, scheduling helpers |
 | `build.py` | Renders the picture, encodes the video, injects the captions, muxes and patches the PMT; also writes `TESTS.md` and `cards.json` (see below) |
 | `reference.py` | Reference slides: replays the stream's caption pairs through a small CEA-608 decoder model written from CTA-608-E and draws what each card should look like, plus an HTML viewer (`python reference.py`, about 10 s, no ffmpeg needed). Output goes to `out/reference/` (git-ignored); `--zip DIR` makes the release zip |
+| `scc.py` | SCC export: the field 1 pairs of a build as an SCC file (drop-frame timecode); plain Python, no dependencies (`build.py --scc`, `--scc-only`) |
+| `test_scc.py` | Checks the SCC export: the timecodes, that the file carries exactly the stream's field 1 pairs, and the parity (`python test_scc.py`) |
 | `test_reference.py` | Checks that decoder model against the generator's own intended layout for the static pop-on cards (`python test_reference.py`); run it after changing `reference.py` or a card |
 | `TESTS.md` | Generated at every build from `testplan.py` (covering both formats). **Committed**, because the README links to it and it is browsable on GitHub: commit the regenerated copy with any change to the plan; the release workflow fails if it is stale |
 | `cards.json` | Machine-readable card list (ids, start times, durations, channels, references, expected results, per-format variants), generated at every build. **Not committed** (git-ignored); the validation tooling reads it after a build |
@@ -46,6 +48,8 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 | `--out FILE` | output path (default `out/CEA608-conformance-<version>-<format>-<codec>.ts`) |
 | `--no-caption-descriptor` | leave the ATSC `caption_service_descriptor` out of the PMT (checks that a decoder still offers CC1-CC4, CEA-CEB-10-A 23.2.2) |
 | `--version-label TEXT` | override the burned-in version label |
+| `--scc` | also write the SCC file of the field 1 caption data (`CEA608-conformance-<version>-field1.scc`) next to the `.ts`; the same file for every format and codec |
+| `--scc-only` | write only the SCC file: no video is rendered, ffmpeg is not needed, and `TESTS.md` and `cards.json` are not touched (the release workflow uses this once) |
 | `--mp4` | also write a small constant-quality (CRF 21) H.264 + AAC `.mp4` next to the `.ts` (H.264 only). The captions stay in the H.264 SEI (no `c608`/`c708` track, no PMT descriptor); see "The MP4 version" in the README |
 
 A 720p59 build takes about a minute and a 480i59 build about half that. The output is a constant 4 Mbps
@@ -176,8 +180,8 @@ def p01(c, t0):                                                            # c: 
 
 ## Known limitations and ideas
 
-* The caption data exists only in memory. Writing it to an **MCC (MacCaption)** file - per-frame `cc_data` as
-  text, which unlike SCC can carry both fields - and embedding that file in a separate step would make the
-  data inspectable and reusable.
+* The caption data is written to an SCC file (`--scc`), which carries field 1 only. Writing it to an **MCC
+  (MacCaption)** file - per-frame `cc_data` as text, which unlike SCC can carry both fields - and embedding that
+  file in a separate step would also make field 2 inspectable and reusable.
 * CEA-708 (DTVCC) services, XDS and Text mode are not generated.
 * The annotated screenshots in `images/` are stills from particular builds; refresh them if the layout changes.

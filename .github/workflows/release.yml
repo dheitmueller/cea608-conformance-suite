@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Devin Heitmueller <devin.heitmueller@gmail.com>
 name: Build and release
 
-# A tag named v* publishes a GitHub Release with both streams and the reference slides (zip), and
+# A tag named v* publishes a GitHub Release with both streams, the SCC file and the reference slides (zip), and
 # publishes the same slides to GitHub Pages (always the slides of the latest release).
 # "Run workflow" (manual) builds the streams and keeps them as workflow artifacts only.
 on:
@@ -44,6 +44,12 @@ jobs:
       - name: Build 480i59 (4:3)
         run: python build.py --format 480i59
 
+      - name: SCC export self-check
+        run: python test_scc.py
+
+      - name: Write the SCC file (field 1 caption data)
+        run: python build.py --scc-only
+
       - name: Build the reference slides (both formats)
         run: python reference.py --out out/reference --zip release
 
@@ -56,10 +62,11 @@ jobs:
         run: |
           mkdir -p release
           cp out/*.ts release/
+          cp out/*.scc release/
           cp TESTS.md release/TESTS.md
           cp LICENSES/CC-BY-SA-4.0.txt release/LICENSE-CC-BY-SA-4.0.txt
           cd release
-          sha256sum *.ts *-reference.zip TESTS.md LICENSE-CC-BY-SA-4.0.txt > SHA256SUMS
+          sha256sum *.ts *.scc *-reference.zip TESTS.md LICENSE-CC-BY-SA-4.0.txt > SHA256SUMS
           ls -l
           cat SHA256SUMS
 
@@ -88,6 +95,7 @@ jobs:
           Download the stream for your video path:
           - *-720p59-h264.ts : 1280x720 progressive, 16:9
           - *-480i59-h264.ts : 720x480 interlaced, 4:3
+          - *-field1.scc : the field 1 caption data (CC1 and CC2) as an SCC file with drop-frame timecode, for tools that read SCC; field 2 (CC3, CC4) cannot be carried in SCC
           - *-reference.zip : unzip, open reference/index.html; slides showing what each card should look like
 
           TESTS.md describes every test card. The streams and TESTS.md are licensed CC BY-SA 4.0 (LICENSE-CC-BY-SA-4.0.txt). SHA256SUMS lists checksums."

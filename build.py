@@ -47,6 +47,7 @@ FORMATS = {
 }
 # (ppf = video pictures per 29.97 Hz caption frame)
 from testplan import SEGMENTS  # noqa: E402
+import scc  # noqa: E402
 
 META = dict(name="CEA-608 Conformance Suite", author="Devin Heitmueller",
             year=2026, license="CC BY-SA 4.0",
@@ -724,6 +725,11 @@ def main():
     ap.add_argument("--mp4", action="store_true",
                     help="also write a small constant-quality (CRF) H.264 + AAC MP4 next to the transport stream, from the "
                          "same captioned video (cc_data stays in the SEI of each sample; no PMT descriptor in MP4)")
+    ap.add_argument("--scc", action="store_true",
+                    help="also write the SCC file of the field 1 caption data (CC1 and CC2) next to the stream; the "
+                         "file is the same for every format and codec")
+    ap.add_argument("--scc-only", action="store_true",
+                    help="write only the SCC file (no video, no ffmpeg, TESTS.md and cards.json are not touched)")
     a = ap.parse_args()
     fmt = dict(FORMATS[a.format])
     if a.size:
@@ -736,6 +742,11 @@ def main():
     out = a.out or os.path.join(HERE, "out", f"CEA608-conformance-{safe}-{a.format}-{a.codec}{suffix}.ts")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     f1, f2, starts, total, n_labels = schedule()
+    if a.scc or a.scc_only:
+        scc_path = os.path.join(os.path.dirname(out), f"CEA608-conformance-{safe}-field1.scc")
+        print(f"wrote {scc_path} ({scc.write(scc_path, f1.pairs)} lines, field 1 only)")
+        if a.scc_only:
+            return
     dur = total * FPS_D / FPS_N
     vn, vd = fmt["vfps"]
     print(f"version label: {VERSION[0]}   format {a.format}   codec {a.codec}")

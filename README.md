@@ -133,6 +133,18 @@ Not covered: CEA-708 (DTVCC) services, XDS data and Text mode (T1-T4).
 | Audio | AC-3 stereo, 128 kbps (a short 1 kHz beep each second) | same |
 | Captions | CEA-608 as ATSC A/53 `cc_data` (ITU-T T.35 SEI). One pair per picture, alternating field 1 (CC1, CC2) and field 2 (CC3, CC4) | the same, but each frame carries **both** field pairs, field 2 first |
 
+### The SCC file
+
+Each release also has an **SCC file** (`CEA608-conformance-<version>-field1.scc`, `build.py --scc` or `--scc-only`) with the
+field 1 caption data of the streams (CC1 and CC2), for tools that read SCC (caption editors, converters such as ttconv) instead of
+a video. It carries the same bytes as the streams at the same times: one two-byte word per caption pair, with a SMPTE
+**drop-frame** timecode (29.97 fps, `;` before the frame number) that follows the clock of the stream to within two frames. It is
+the same file for both formats and both codecs, because the caption data is the same.
+
+What an SCC file cannot carry: **field 2** (CC3 and CC4) is not in it, and frames **without any waveform** (the loss of data cards
+S03 and S04) look the same as null pairs. The even parity data of card S05 is written as it is. Valid null pairs are not written:
+a line of words ends at a null.
+
 ### The MP4 version
 
 Each stream can also be built as a small **MP4** (`build.py --mp4`, H.264 only), for players and tools that do not take a transport

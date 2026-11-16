@@ -8,6 +8,11 @@ against an earlier release stays comparable.
 
 Not released yet.
 
+* **SCC file of the caption data** (`build.py --scc`, or `--scc-only` for just the file). The field 1 caption data of the
+  streams (CC1 and CC2) as an SCC file with drop-frame timecode, attached to the release as `*-field1.scc`: the same bytes
+  as the streams at the same times, for tools that read SCC. Field 2 (CC3 and CC4) cannot be carried in SCC and is not in the
+  file. The streams and the cards are unchanged.
+
 * **MP4 version of each stream** (`build.py --mp4`, H.264 only). A constant-quality encode (CRF 21, about 0.4 Mbps, AAC
   audio) of the same captioned video, roughly a tenth of the size of the 4 Mbps constant-bit-rate transport stream
   (27 MB against 264 MB for the 720p59 stream). The captions are carried only in the H.264 SEI, as in the transport
