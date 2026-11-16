@@ -240,6 +240,19 @@ def graticule_16x9(w, h):
     return img
 
 
+def banner_lines(seg):
+    """The three lines of the banner of a 16:9 card: card, title and channels; what is tested and expected; the
+    references (or, for a card without any, the project and version)."""
+    chans = seg.shown or {"1234": "CC1 CC2 CC3 CC4", "13": "CC1 + CC3"}.get(seg.chans, "")
+    l1 = f"{seg.id}  {seg.title}" + (f"   [{chans}]" if chans else "")
+    l2 = f"{seg.detail}   |   Expect: {seg.expect}"
+    if seg.refs:
+        l3 = "Ref: " + "   ·   ".join(f"{c} [{lv}]" for c, lv in seg.refs)
+    else:
+        l3 = f"{META['name']} {VERSION[0]}  ·  by {META['author']}  ·  {META['license']}"
+    return l1, l2, l3
+
+
 def make_base_16x9(grat, seg, idx, n, w, h):
     k = w / 1920
     img = grat.copy().convert("RGBA")
@@ -248,13 +261,7 @@ def make_base_16x9(grat, seg, idx, n, w, h):
     top, bot = int(108 * k), int(88 * k)
     d.rectangle([0, 0, w, top], fill=(0, 0, 0, 225))
     d.rectangle([0, h - bot, w, h], fill=(0, 0, 0, 225))
-    chans = seg.shown or {"1234": "CC1 CC2 CC3 CC4", "13": "CC1 + CC3"}.get(seg.chans, "")
-    l1 = f"{seg.id}  {seg.title}" + (f"   [{chans}]" if chans else "")
-    l2 = f"{seg.detail}   |   Expect: {seg.expect}"
-    if seg.refs:
-        l3 = "Ref: " + "   ·   ".join(f"{c} [{lv}]" for c, lv in seg.refs)
-    else:
-        l3 = f"{META['name']} {VERSION[0]}  ·  by {META['author']}  ·  {META['license']}"
+    l1, l2, l3 = banner_lines(seg)
     mw = w - 40 * k
     d.text((20 * k, 4 * k), l1, font=fit(d, l1, FONT_B, int(34 * k), mw), fill=(255, 255, 255, 255))
     d.text((20 * k, 44 * k), l2, font=fit(d, l2, FONT_U, int(25 * k), mw), fill=(255, 224, 102, 255))
@@ -371,6 +378,25 @@ def make_base_4x3(grat, seg, idx, n, w, h):
     return np.asarray(Image.alpha_composite(img, ov).convert("RGB")).copy(), tl
 
 
+def timer_text(f, f0, vn, vd):
+    """The timer of picture f of a card whose first picture is f0, at vn/vd pictures per second: the clock time, the
+    picture number and the seconds into the card."""
+    t = f * vd / vn
+    ct = (f - f0) * vd / vn
+    return f"{int(t // 60):02d}:{int(t % 60):02d}.{int(t * 1000) % 1000:03d}  frame {f:05d}  card +{ct:05.1f}s"
+
+
+def draw_timer(base, region, tl, tfont, text):
+    """A copy of the base picture of a card with the timer text drawn in its box (region is the base picture's
+    pixels of that box)."""
+    x0, y0, x1, y1 = tl["box"]
+    frame = base.copy()
+    im = region.copy()
+    ImageDraw.Draw(im).text(tl["origin"], text, font=tfont, fill=(255, 255, 255))
+    frame[y0:y1, x0:x1] = np.asarray(im)
+    return frame
+
+
 def render_video(starts, total, m2v, codec, fmt):
     """`total` is in 29.97 Hz caption frames; each caption frame is `ppf` pictures of this format."""
     cw, ch = fmt["canvas"]
@@ -410,14 +436,7 @@ def render_video(starts, total, m2v, codec, fmt):
         region = Image.fromarray(base[y0:y1, x0:x1])
         k = ch / 720 if fmt["kind"] == "16x9" else ch / 480
         for f in range(f0, f1):
-            t = f * vd / vn
-            ct = (f - f0) * vd / vn
-            frame = base.copy()
-            im = region.copy()
-            ImageDraw.Draw(im).text(tl["origin"],
-                                    f"{int(t // 60):02d}:{int(t % 60):02d}.{int(t * 1000) % 1000:03d}  frame {f:05d}"
-                                    f"  card +{ct:05.1f}s", font=tfont, fill=(255, 255, 255))
-            frame[y0:y1, x0:x1] = np.asarray(im)
+            frame = draw_timer(base, region, tl, tfont, timer_text(f, f0, vn, vd))
             if f in flash:
                 if fmt["kind"] == "16x9":
                     frame[int(100 * k):int(290 * k), int(27 * k):int(267 * k)] = 255
