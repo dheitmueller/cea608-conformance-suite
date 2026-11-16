@@ -47,6 +47,9 @@ jobs:
       - name: SCC export self-check
         run: python test_scc.py
 
+      - name: The annotated screenshot must show the current cards
+        run: python screenshot.py --check
+
       - name: Write the SCC file (field 1 caption data)
         run: python build.py --scc-only
 
