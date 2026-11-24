@@ -743,6 +743,23 @@ def s05(c, t0):
     c.popon(t0 + 8.0, [R(13, "Caption B: after bad parity")])
 
 
+@seg("S06", "A zero pair in the middle of a row", "paint-on 'Before', one zero-filled even-parity pair, 'After'",
+     "row 8 reads 'BeforeAfter': the bad pair is not data and the text around it is kept", 5.0,
+     [E("C.21", "76-77", REG), A("A.1.1", 52, INFO),
+      ("608-E C.21 does not say which channel the data after an invalid pair belongs to", UNSPEC)],
+     "A pair whose bytes fail the odd parity check (here 0x00 0x00 with even parity, as some muxers pad) is not valid "
+     "data (C.21). A single one must not cost the row: the characters before and after it are one row of text. The "
+     "standard counts such pairs only toward the 45 frames that disable the display (card S05) and does not say what "
+     "happens to the channel selection, so this card records whether the text that follows is still taken for the "
+     "same channel.")
+def s06(c, t0):
+    c.at(t0)
+    c.put(c.EDM() + c.RDC() + c.pac(8) + c.tokens("Before"))
+    c.field.bad(1)
+    c.put(c.tokens("After"))
+    clear(c, t0 + 4.0)
+
+
 @seg("H01", "Channel isolation CC1 / CC2 / CC3 / CC4", "field 1 ch 1/2, field 2 ch 1/2 (field 2 uses 0x15/0x1D)",
      "each service shows only its own line: CC1 row 4, CC2 row 6, CC3 row 9, CC4 row 11 (plus its 'Rendering on' label)", 11.0,
      [E("B.11.6", 69, REG), E("C.18", 76, INFO), A("23.2.2", 37)],

@@ -111,6 +111,8 @@ def midrow_after_pac():
 DYNAMIC = [
     # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
+    # S06: one even-parity pair is not data, the text around it is kept (C.21)
+    ("S06", 3.0, {8: "BeforeAfter"}),
 ]
 
 
