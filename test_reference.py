@@ -111,6 +111,8 @@ def midrow_after_pac():
 DYNAMIC = [
     # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
+    # R12a: nothing is displayed any more after the BS: the default base row 15 (C.15)
+    ("R12a", 2.5, {15: "Text on row 15"}),
     # R10b: RU3 over a displayed RU2 on base row 2 moves the rows down with the base row (C.4, preferred)
     ("R10b", 1.8, {1: "Row X", 2: "Row Y"}),
     ("R10b", 3.8, {2: "Row X", 3: "Row Y"}),

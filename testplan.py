@@ -568,6 +568,19 @@ def r09(c, t0):
     c.put(c.EDM() + c.RU(3) + c.tokens("No PAC sent: base row 15"))
 
 
+@seg("R12a", "Default base row after the only character was erased", "RU3 on base row 7, one character, BS, RU2, text",
+     "the text appears on row 15 (nothing is displayed any more, so the default base row applies), not on row 7", 5.0,
+     [E("C.15", 75, PREF), E("B.3", 62, REC)],
+     "C.15 gives row 15 as the base row of a roll-up unless a roll-up caption is displayed. A roll-up on base row 7 "
+     "receives one character and a Backspace erases it, so nothing is displayed; a following roll-up command and text "
+     "must start on row 15. A decoder that decides from the rows it has used, and not from what is on screen, goes "
+     "on at row 7.")
+def r12a(c, t0):
+    c.at(t0)
+    c.put(c.EDM() + c.RU(3) + c.pac(7) + c.tokens("A") + c.BS() + c.RU(2) + c.tokens("Text on row 15"))
+    clear(c, t0 + 4.0)
+
+
 @seg("R10", "Roll-up depth change RU3 to RU2", "RU3 rows, then RU2 + CR",
      "final: two rows 'the caption has been' / 'displayed, like this.'", 13.0,
      [("608-E Annex C silent on resulting display", UNSPEC)],
