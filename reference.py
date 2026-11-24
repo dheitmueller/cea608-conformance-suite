@@ -84,11 +84,21 @@ class Decoder:
         self.style = list(DEFAULT_STYLE)
         self.inherit = False             # a PAC was just received: C.7 attribute inheritance applies
         self.dirty = False
+        self.text = Memory()             # the Text Mode memory (7.4): never part of the caption display
+        self.trow = 1                    # its cursor row; the column is self.col
+        self.before_text = None          # the caption style that Text Mode interrupted
 
     # -- helpers
     @property
     def target(self):
+        if self.mode == "text":
+            return self.text
         return self.hidden if self.mode == "pop" else self.shown
+
+    def cur_row(self):
+        if self.mode == "text":
+            return self.trow
+        return self.base if self.mode == "roll" else self.row
 
     def mark(self):
         self.dirty = True
@@ -100,8 +110,8 @@ class Decoder:
 
     def put(self, ch):
         mem = self.target
-        row = self.base if self.mode == "roll" else self.row
-        if self.mode != "roll":
+        row = self.cur_row()
+        if self.mode not in ("roll", "text"):
             mem.touch(row)
         if self.inherit and self.col > 1 and mem.grid[row - 1][self.col - 2]:      # C.7
             c = mem.grid[row - 1][self.col - 2]
@@ -137,6 +147,8 @@ class Decoder:
             else:
                 self.style[0] = COLORS[code // 2]
         self.style[1] = bool(code & 1)
+        if self.mode == "text":
+            return                                         # 7.4: a PAC moves the cursor along the row only
         if self.mode == "roll":
             self.set_base(max(row, self.depth))
         else:
@@ -161,14 +173,14 @@ class Decoder:
             if self.col > 1:
                 self.col -= 1
             mem = self.target
-            row = self.base if self.mode == "roll" else self.row
+            row = self.cur_row()
             if mem.grid[row - 1][self.col - 1]:
                 mem.grid[row - 1][self.col - 1] = None
                 if mem is self.shown:
                     self.mark()
         elif code == 0x24:                                 # DER
             mem = self.target
-            row = self.base if self.mode == "roll" else self.row
+            row = self.cur_row()
             for c in range(self.col - 1, COLS):
                 mem.grid[row - 1][c] = None
             if mem is self.shown:
@@ -197,6 +209,13 @@ class Decoder:
             self.mode = "paint"
         elif code == 0x28:                                 # FON
             self.spacing(fl=True)
+        elif code in (0x2A, 0x2B):                         # TR, RTD: Text Mode (7.4)
+            if self.mode != "text":
+                self.before_text = self.mode
+            if code == 0x2A:
+                self.text.erase()
+                self.trow, self.col = 1, 1
+            self.mode = "text"
         elif code == 0x2C:                                 # EDM
             self.shown.erase()
             self.mark()
@@ -210,6 +229,8 @@ class Decoder:
                 self.style = list(DEFAULT_STYLE)
                 self.inherit = False
                 self.mark()
+            elif self.mode == "text":                      # 7.4: down a row until the last one, column 1
+                self.trow, self.col = min(ROWS, self.trow + 1), 1
         elif code == 0x2E:                                 # ENM
             self.hidden.erase()
         elif code == 0x2F:                                 # EOC

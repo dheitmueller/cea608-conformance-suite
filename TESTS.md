@@ -2,7 +2,7 @@
 
 By Devin Heitmueller. Licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
 
-77 cards, 09:35.01 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
+78 cards, 09:41.01 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
 
 Each card's name, expected result and spec reference with its level are burned into the video, over a graticule showing the FCC safe caption area and the 15 x 32 grid.
 
@@ -977,9 +977,24 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 * CTA-608-E C.5 p.72-73 - `REGULATORY`
 * CTA-608-E B.3 p.62 - `RECOMMENDED`
 
+### D10 - Text Mode data does not touch the caption
+
+*Starts 07:06.00, lasts 6 s, channels: CC1, CC3*
+
+**Purpose.** Resume Text Display starts Text Mode (7.4), whose characters, cursor, BS and DER belong to the text memory, not to the caption being displayed. A caption is displayed, then Text Mode text is sent and a PAC and a DER erase its row. The caption must be unchanged and the text must not appear on the caption display. A decoder that applies the DER (or writes the text) to the caption memory removes or alters the caption.
+
+**Test.** pop-on caption, RTD, text, PAC, DER.
+
+**Expected.** 'Caption stays on screen' on row 8 is displayed throughout and no text-mode row appears on the caption display
+
+**References.**
+
+* CTA-608-E 7.4 p.26-27 - `UNLABELED, 'shall'`
+* CTA-608-E B.3 p.62 - `RECOMMENDED`
+
 ### D07 - Pop-on then paint-on
 
-*Starts 07:06.00, lasts 9 s, channels: CC1, CC3*
+*Starts 07:12.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** Paint-on adds to whatever is displayed.
 
@@ -993,7 +1008,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D08 - Roll-up erases pop-on in both memories; EOC swaps roll-up
 
-*Starts 07:15.00, lasts 16 s, channels: CC1, CC3*
+*Starts 07:21.00, lasts 16 s, channels: CC1, CC3*
 
 **Purpose.** Roll-up commands must erase pop-on/paint-on data in EITHER memory. An EOC while roll-up is selected swaps the whole roll-up caption into non-displayed memory (screen goes blank, since B was erased) and a second EOC brings it back in the same row order.
 
@@ -1008,7 +1023,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D09 - Redundant control pairs vs repeated commands
 
-*Starts 07:31.00, lasts 10 s, channels: CC1, CC3*
+*Starts 07:37.00, lasts 10 s, channels: CC1, CC3*
 
 **Purpose.** A control code repeated in the very next frame is a redundant copy and must act once; the same code separated by a null frame is a new command. (10-A notes inserting a null can change interpretation of adjacent repeated codes.) Field 1 sends doubled pairs; field 2 sends single (B.14), so CC3 exercises the single-code path.
 
@@ -1025,7 +1040,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S01 - Caption sync to video flash
 
-*Starts 07:41.00, lasts 8 s, channels: CC1, CC3*
+*Starts 07:47.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** Decoders shall act within one video frame of the code pair (C.12). Each white flash is exactly the picture carrying the first EOC. 10-A recommends total decode delay no more than two frames.
 
@@ -1045,7 +1060,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S02 - Caption persists on valid nulls
 
-*Starts 07:49.00, lasts 22 s, channels: CC1, CC3*
+*Starts 07:55.00, lasts 22 s, channels: CC1, CC3*
 
 **Purpose.** Nulls are valid caption data and mean 'hold'. A decoder implementing automatic erasure must wait at least 16 s (608-E). 10-A notes this contrasts with loss of waveform, which erases (card S03).
 
@@ -1062,7 +1077,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S03 - Loss of data erases captions; recovery
 
-*Starts 08:11.00, lasts 14 s, channels: CC1, CC3*
+*Starts 08:17.00, lasts 14 s, channels: CC1, CC3*
 
 **Purpose.** 608-E C.21: after 45 consecutive frames without valid data a decoder shall disable display and erase memory; on resumption it enables after 12-18 valid frames and displays the data received while counting. 10-A clarifies cc_valid=0 means 'no waveform' (decoder erases) as distinct from nulls (hold).
 
@@ -1078,7 +1093,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S04 - Field 2 loss only
 
-*Starts 08:25.00, lasts 12 s, channels: CC1, CC3*
+*Starts 08:31.00, lasts 12 s, channels: CC1, CC3*
 
 **Purpose.** Each field is evaluated independently; field 1 must remain valid whenever field 2 carries data (D.7).
 
@@ -1094,7 +1109,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S05 - Invalid (even) parity data
 
-*Starts 08:37.00, lasts 12 s, channels: CC1, CC3*
+*Starts 08:43.00, lasts 12 s, channels: CC1, CC3*
 
 **Purpose.** Data bytes failing odd parity count as 'no valid data' toward the 45-frame disable rule.
 
@@ -1109,7 +1124,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S07 - Display enabled after 12-18 valid frames
 
-*Starts 08:49.00, lasts 9 s, channels: CC1, CC3*
+*Starts 08:55.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** 608-E C.21: after the display was disabled by a loss of data it is not enabled until n consecutive valid frames have been received, n between 12 and 18 (0.40 to 0.60 s); the data of those frames is kept and displayed immediately after the nth. Caption B (a pop-on of one word) is complete 9 frames after the data returns, before the display is enabled again, so it must not be shown at its EOC but once the display is enabled. A decoder that shows it at its EOC does not hold the display disabled.
 
@@ -1125,7 +1140,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S08 - A valid pair resets the count of frames without data
 
-*Starts 08:58.00, lasts 9 s, channels: CC1, CC3*
+*Starts 09:04.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** 608-E C.21: the display is disabled after 45 consecutive frames in which no data are detected; a frame in which both bytes have odd parity resets the count. Two runs of 44 frames, each ended by one valid pair, never reach 45, so the caption must stay. A decoder that counts all the frames without data, or does not reset on a valid frame, erases it too early. The third run of 45 frames erases it as in card S03.
 
@@ -1141,7 +1156,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S06 - A zero pair in the middle of a row
 
-*Starts 09:07.00, lasts 5 s, channels: CC1, CC3*
+*Starts 09:13.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** A pair whose bytes fail the odd parity check (here 0x00 0x00 with even parity, as some muxers pad) is not valid data (C.21). A single one must not cost the row: the characters before and after it are one row of text. The standard counts such pairs only toward the 45 frames that disable the display (card S05) and does not say what happens to the channel selection, so this card records whether the text that follows is still taken for the same channel.
 
@@ -1157,7 +1172,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### H01 - Channel isolation CC1 / CC2 / CC3 / CC4
 
-*Starts 09:12.00, lasts 11 s, channels: CC1-CC4*
+*Starts 09:18.00, lasts 11 s, channels: CC1-CC4*
 
 **Purpose.** Four independent caption services. Field 2 uses 0x15/0x1D in miscellaneous control codes (B.11.6). CC2 and CC4 deliver their test line inside their regular 2-second label refresh. 10-A recommends decoders let the viewer select CC1-CC4 even without a caption_service_descriptor (build with --no-caption-descriptor for that variant).
 
@@ -1173,7 +1188,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### H02 - A pair for another channel between two copies
 
-*Starts 09:23.00, lasts 7 s, channels: CC1, CC3*
+*Starts 09:29.00, lasts 7 s, channels: CC1, CC3*
 
 **Purpose.** A control code is sent twice in successive frames (D.2) and the second copy is redundant. Field 1 carries two channels (CC1 and CC2, or CC3 and CC4 on field 2), so a pair for the other channel can sit between the two EOCs of a caption: the two EOCs are then not in successive frames, and this card reads them as two commands (the standard is silent on this case). One caption is displayed and another is loaded off-screen; the EOC, an erase of the other channel and a second EOC then flip the memories twice, which leaves the caption that was displayed on screen. A decoder that forgets only on a pair of its own channel takes the second EOC for a copy and ends on the other caption.
 
@@ -1189,7 +1204,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### Z99 - End of test
 
-*Starts 09:30.00, lasts 5 s, channels: CC1, CC3*
+*Starts 09:36.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Marks the end of the stream and clears the screen.
 

@@ -651,6 +651,24 @@ def d06(c, t0):
     c.put(c.pac(11) + c.tokens("Row E (5th row)"), pace=2)
 
 
+@seg("D10", "Text Mode data does not touch the caption", "pop-on caption, RTD, text, PAC, DER",
+     "'Caption stays on screen' on row 8 is displayed throughout and no text-mode row appears on the caption display", 6.0,
+     [E("7.4", "26-27", "UNLABELED, 'shall'"), E("B.3", 62, REC)],
+     "Resume Text Display starts Text Mode (7.4), whose characters, cursor, BS and DER belong to the text memory, "
+     "not to the caption being displayed. A caption is displayed, then Text Mode text is sent and a PAC and a DER erase "
+     "its row. The caption must be unchanged and the text must not appear on the caption display. A decoder that "
+     "applies the DER (or writes the text) to the caption memory removes or alters the caption.")
+def d10(c, t0):
+    c.popon(t0, [R(8, "Caption stays on screen")])
+    c.at(t0 + 2.0)
+    c.put(c.misc(0x2B) + c.tokens("Text mode row"))
+    c.at(t0 + 3.0)
+    c.put(c.pac(1) + c.DER())
+    c.at(t0 + 4.0)
+    c.put(c.RCL())
+    clear(c, t0 + 5.0)
+
+
 @seg("D07", "Pop-on then paint-on", "RDC does not erase a displayed pop-on", "row 13 pop-on text stays; row 14 painted below", 9.0,
      [E("C.10", 74, REG)],
      "Paint-on adds to whatever is displayed.")
