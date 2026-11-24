@@ -2,7 +2,7 @@
 
 By Devin Heitmueller. Licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
 
-71 cards, 08:53.00 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
+72 cards, 09:00.01 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
 
 Each card's name, expected result and spec reference with its level are burned into the video, over a graticule showing the FCC safe caption area and the 15 x 32 grid.
 
@@ -1092,9 +1092,25 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 * CTA-608-E C.18 p.76 - `INFORMATIVE`
 * CEA-CEB-10-A 23.2.2 p.37 - `10A-RECOMMENDATION`
 
+### H02 - A pair for another channel between two copies
+
+*Starts 08:48.00, lasts 7 s, channels: CC1, CC3*
+
+**Purpose.** A control code is sent twice in successive frames (D.2) and the second copy is redundant. Field 1 carries two channels (CC1 and CC2, or CC3 and CC4 on field 2), so a pair for the other channel can sit between the two EOCs of a caption: the two EOCs are then not in successive frames, and this card reads them as two commands (the standard is silent on this case). One caption is displayed and another is loaded off-screen; the EOC, an erase of the other channel and a second EOC then flip the memories twice, which leaves the caption that was displayed on screen. A decoder that forgets only on a pair of its own channel takes the second EOC for a copy and ends on the other caption.
+
+**Test.** EOC, a pair for the other channel of the field, EOC.
+
+**Expected.** the caption ends as 'Caption ONE: two flips'; 'Caption TWO: copy ignored' means the decoder took the second EOC for a copy
+
+**References.**
+
+* CTA-608-E D.2 p.78 - `NORMATIVE/REGULATORY`
+* CTA-608-E B.14 p.70 - `RECOMMENDED`
+* 608-E D.2 / B.14 do not say what a pair for another channel between two copies means - `UNSPECIFIED`
+
 ### Z99 - End of test
 
-*Starts 08:48.00, lasts 5 s, channels: CC1, CC3*
+*Starts 08:55.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Marks the end of the stream and clears the screen.
 

@@ -105,6 +105,43 @@ def midrow_after_pac():
     return bad
 
 
+# Dynamic cards (roll-up, paint-on, editing, signal): the text on screen, written from the specification text and not from
+# the model, at an offset in seconds from the start of the card: (card, offset, {row: text}).  Both CC1 and CC3 are checked.
+# A row is the text of its used cells with the blank cells between as spaces.
+DYNAMIC = [
+    # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
+    ("H02", 4.5, {8: "Caption ONE: two flips"}),
+]
+
+
+def row_texts(snap):
+    out = {}
+    for r, row in enumerate(snap):
+        cells = [c for c in row if c]
+        if cells:
+            first = next(i for i, c in enumerate(row) if c)
+            last = max(i for i, c in enumerate(row) if c)
+            out[r + 1] = "".join(c[0] if c else " " for c in row[first:last + 1])
+    return out
+
+
+def dynamic_checks(fields, starts):
+    ids = [s.id for s in testplan.SEGMENTS]
+    bad = checked = 0
+    for cid, offset, want in DYNAMIC:
+        i = ids.index(cid)
+        frame = sec2f(starts[i] + offset)
+        for name, (fi, ch) in {"CC1": (0, 1), "CC3": (1, 1)}.items():
+            snap = [s for f, s in fields[fi].states[ch] if f <= frame][-1]
+            got = row_texts(snap)
+            checked += 1
+            if got != want:
+                bad += 1
+                print(f"{cid} {name} at +{offset} s: model {got} expected {want}")
+    print(f"{checked} dynamic card/channel states checked, {bad} differ")
+    return bad
+
+
 def main():
     testplan.apply_format("720p59")
     want = intended()
@@ -131,6 +168,7 @@ def main():
                     if got.get(k) != w.get(k):
                         print(f"{cid} {name} row {k[0]} col {k[1]}: model {got.get(k)} intended {w.get(k)}")
     print(f"{checked} card/channel layouts checked, {bad} differ")
+    bad += dynamic_checks(fields, starts)
     bad += midrow_after_pac()
     return 1 if bad else 0
 

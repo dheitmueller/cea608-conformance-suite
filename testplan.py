@@ -15,7 +15,7 @@ Citations use PRINTED page numbers of CTA-608-E (S-2019) and CEA-CEB-10-A (Dec 2
 Scripts run once per channel in `chans` ("13" = CC1 and CC3 receive identical data;
 field 1 doubles control codes, field 2 does not - 608-E D.2 p.78 / B.14 p.70).
 """
-from cea608 import R, fallback, EXT12, EXT13, SPECIAL, COLOR_NAMES, sec2f
+from cea608 import Chan, R, fallback, EXT12, EXT13, SPECIAL, COLOR_NAMES, sec2f
 
 REG, NORM, PREF, OPT = "REGULATORY", "NORMATIVE", "PREFERRED", "OPTIONAL"
 REC, INFO, R10A, UNSPEC = "RECOMMENDED", "INFORMATIVE", "10A-RECOMMENDATION", "UNSPECIFIED"
@@ -755,6 +755,27 @@ def h01(c, t0):
                 (9, "CC3: field 2, data channel 1")
     c.popon(t0, [R(row, text)])
     clear(c, t0 + 9.0)
+
+
+@seg("H02", "A pair for another channel between two copies", "EOC, a pair for the other channel of the field, EOC",
+     "the caption ends as 'Caption ONE: two flips'; 'Caption TWO: copy ignored' means the decoder took the second EOC for a copy", 7.0,
+     [E("D.2", 78, NORM + "/" + REG), E("B.14", 70, REC),
+      ("608-E D.2 / B.14 do not say what a pair for another channel between two copies means", UNSPEC)],
+     "A control code is sent twice in successive frames (D.2) and the second copy is redundant. Field 1 carries two "
+     "channels (CC1 and CC2, or CC3 and CC4 on field 2), so a pair for the other channel can sit between the two EOCs "
+     "of a caption: the two EOCs are then not in successive frames, and this card reads them as two commands "
+     "(the standard is silent on this case). One caption is displayed and another is loaded off-screen; the EOC, an "
+     "erase of the other channel and a second EOC then flip the memories twice, which leaves the caption that was "
+     "displayed on screen. A decoder that forgets only on a pair of its own channel takes the second EOC for a "
+     "copy and ends on the other caption.")
+def h02(c, t0):
+    other = Chan("CC2" if c.ch == 1 else "CC4", c.field, 2, c.double)
+    c.popon(t0, [R(8, "Caption ONE: two flips")])
+    c.at(t0 + 2.0)
+    c.put(c.RCL() + c.row_tokens(R(8, "Caption TWO: copy ignored")))
+    c.at(t0 + 3.0)
+    c.put(c.raw(0x2F, 1) + other.raw(0x2C, 1) + c.raw(0x2F, 1))
+    clear(c, t0 + 6.0)
 
 
 @seg("Z99", "End of test", "end of stream", "centered end message, then blank", 5.0, [],
