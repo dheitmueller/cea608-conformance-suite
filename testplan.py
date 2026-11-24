@@ -579,6 +579,21 @@ def r10(c, t0):
     c.put(c.RU(2) + c.CR() + c.pac(15) + c.tokens("displayed, like this."))
 
 
+@seg("R10b", "Roll-up deeper than its base row allows", "RU2 on base row 2, then RU3",
+     "rows X, Y on rows 1-2; at RU3 they move down to rows 2-3 (base row 3); CR and Z then give X, Y, Z on rows 1-3", 8.0,
+     [E("C.4", 72, PREF), E("B.5", "63-64", REC)],
+     "A roll-up of three rows cannot have its base row above row 3 (C.4). When RU3 arrives while a two-row roll-up with "
+     "base row 2 is displayed, the preferred choice (card R08) is to keep the depth and move the base row down; the "
+     "rows on screen go with it. A decoder that moves only the base row leaves X and Y where they were and shows a gap, "
+     "or that drops the rows above row 1, loses one of them.")
+def r10b(c, t0):
+    rollup(c, t0, 2, 2, ["Row X", "Row Y"], step=1.0)
+    c.at(t0 + 3.0)
+    c.put(c.RU(3))
+    c.at(t0 + 5.0)
+    c.put(c.CR() + c.tokens("Row Z"))
+
+
 @seg("R11", "Three CRs = two rolls", "CR CR CR (three identical consecutive pairs) between two rows",
      "A is two rows above B (one blank row between)", 7.0,
      [E("B.14", 70, REC), E("D.2", 78, NORM + "/" + REG)],

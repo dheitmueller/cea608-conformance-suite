@@ -198,6 +198,8 @@ class Decoder:
                     self.base, self.col = ROWS, 1
                     self.style = list(DEFAULT_STYLE)
             depth = code - 0x23
+            if self.mode == "roll" and max(self.base, depth) != self.base:
+                self.set_base(max(self.base, depth))       # C.4: a deeper window needs a lower base row, the rows follow
             if self.mode == "roll" and depth < self.depth:
                 for r in range(1, self.base - depth + 1):
                     self.shown.grid[r - 1] = [None] * COLS
