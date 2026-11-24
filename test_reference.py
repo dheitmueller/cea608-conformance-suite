@@ -17,7 +17,7 @@ import reference
 import testplan
 from cea608 import Chan, Field, sec2f
 
-STATIC = {"G01", "G02", "C01a", "C01b", "C01c", "C02", "C03a", "C03b", "C03c", "C03d", "C03e", "C03f", "C04",
+STATIC = {"G01", "G02", "G03", "C01a", "C01b", "C01c", "C02", "C03a", "C03b", "C03c", "C03d", "C03e", "C03f", "C04",
           "A01a", "A01b", "A01c", "A01d", "A02a", "A02b", "A02c", "A02d", "A03a", "A03b", "A03c", "A03d",
           "A04", "A05a", "A05b", "A05c", "A05d", "A06", "A09a", "A09b", "A09c", "A10"}
 # P05 (five rows) is left out: 608-E leaves the result implementation-defined; the model keeps the newest four.

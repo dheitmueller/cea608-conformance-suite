@@ -148,6 +148,17 @@ def g02(c, t0):
     c.popon(t0, [R(1, "A"), R(1, "B", col=32), R(15, "C"), R(15, "D", col=32)])
 
 
+@seg("G03", "Two separated rows of different colors", "pop-on; row 3 green, row 12 red, nothing between",
+     "'Row 3: green' is green on row 3 and 'Row 12: red' is red on row 12; each row keeps its own color and its own grid row", 5.0,
+     [E("C.5", 72, REG), E("F.1.1.5 Table 53", 101, REG), E("C.7", 73, REG + "/" + PREF)],
+     "Two rows with nine empty rows between them, each started by its own PAC with its own color. Each row is "
+     "addressed by its PAC (C.5), so the rows must sit on their grid rows whatever the height of the text, and a "
+     "renderer that merges the rows into one block of text, or gives the second row the color of the first, fails. "
+     "Decoders that hand the rows to a text format see two separate rows (the empty rows are not text).")
+def g03(c, t0):
+    c.popon(t0, [R(3, "Row 3: green", color="g"), R(12, "Row 12: red", color="r")])
+
+
 # ================================================================ CHARACTERS
 group("Character sets")
 for _n, (_lbl, _txt) in enumerate([

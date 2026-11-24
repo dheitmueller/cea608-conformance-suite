@@ -2,7 +2,7 @@
 
 By Devin Heitmueller. Licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
 
-70 cards, 08:47.99 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
+71 cards, 08:53.00 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
 
 Each card's name, expected result and spec reference with its level are burned into the video, over a graticule showing the FCC safe caption area and the 15 x 32 grid.
 
@@ -76,11 +76,27 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *720p59 (16:9) differs:* **Expected.** A,B (row 1) and C,D (row 15) at the grid edges, rows within 10-90% of height; note whether columns map to the green, cyan or another box **Purpose.** The FCC safe caption area (C.22, Table 46) is defined only for a 4:3 picture: 80% of the picture height by 80% of a 4:3 width, 10% in from the top. Rows 1-15 therefore span 10%-90% of the picture height at any aspect ratio, which is checkable. How the 32 columns map horizontally onto a 16:9 picture is not specified in CTA-608-E; CEA-CEB-10-A 23.3 only remarks that up-converted NTSC captions may have a 4:3 aspect ratio within a 16:9 image. The green box (4:3 centered) and the cyan box (80% of the 16:9 frame) are shown as the two common interpretations; this card records which one the decoder uses. **References.** CTA-608-E C.22 p.77: vertical band defined; horizontal placement for 16:9 unspecified - `REGULATORY (vertical) / UNSPECIFIED`; CEA-CEB-10-A 23.3 p.38 - `INFORMATIVE`
 
+### G03 - Two separated rows of different colors
+
+*Starts 00:18.00, lasts 5 s, channels: CC1, CC3*
+
+**Purpose.** Two rows with nine empty rows between them, each started by its own PAC with its own color. Each row is addressed by its PAC (C.5), so the rows must sit on their grid rows whatever the height of the text, and a renderer that merges the rows into one block of text, or gives the second row the color of the first, fails. Decoders that hand the rows to a text format see two separate rows (the empty rows are not text).
+
+**Test.** pop-on; row 3 green, row 12 red, nothing between.
+
+**Expected.** 'Row 3: green' is green on row 3 and 'Row 12: red' is red on row 12; each row keeps its own color and its own grid row
+
+**References.**
+
+* CTA-608-E C.5 p.72 - `REGULATORY`
+* CTA-608-E F.1.1.5 Table 53 p.101 - `REGULATORY`
+* CTA-608-E C.7 p.73 - `REGULATORY/PREFERRED`
+
 ## Character sets
 
 ### C01a - Basic characters 1/3
 
-*Starts 00:18.00, lasts 5 s, channels: CC1, CC3*
+*Starts 00:23.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** The 112-character basic set every decoder shall support. 608 replaces several ASCII positions (0x2A, 0x5C, 0x5E-0x60, 0x7B-0x7F) with accented letters and symbols; a renderer using plain ASCII/Latin-1 mapping fails here.
 
@@ -95,7 +111,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C01b - Basic characters 2/3
 
-*Starts 00:23.00, lasts 5 s, channels: CC1, CC3*
+*Starts 00:28.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** The 112-character basic set every decoder shall support. 608 replaces several ASCII positions (0x2A, 0x5C, 0x5E-0x60, 0x7B-0x7F) with accented letters and symbols; a renderer using plain ASCII/Latin-1 mapping fails here.
 
@@ -110,7 +126,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C01c - Basic characters 3/3
 
-*Starts 00:28.00, lasts 5 s, channels: CC1, CC3*
+*Starts 00:33.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** The 112-character basic set every decoder shall support. 608 replaces several ASCII positions (0x2A, 0x5C, 0x5E-0x60, 0x7B-0x7F) with accented letters and symbols; a renderer using plain ASCII/Latin-1 mapping fails here.
 
@@ -125,7 +141,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C02 - Special characters
 
-*Starts 00:33.00, lasts 5 s, channels: CC1, CC3*
+*Starts 00:38.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** The 16 special characters sent as two-byte codes (registered, degree, half, inverted query, trademark, cent, pound, music note, accented a/e/i/o/u). The transparent space (0x39) is omitted from the visible row.
 
@@ -139,7 +155,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03a - International characters - Spanish
 
-*Starts 00:38.00, lasts 6 s, channels: CC1, CC3*
+*Starts 00:43.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 5). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -154,7 +170,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03b - Miscellaneous symbols
 
-*Starts 00:44.00, lasts 6 s, channels: CC1, CC3*
+*Starts 00:49.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 6). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -169,7 +185,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03c - International characters - French
 
-*Starts 00:50.00, lasts 6 s, channels: CC1, CC3*
+*Starts 00:55.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 7). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -184,7 +200,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03d - International characters - Portuguese
 
-*Starts 00:56.00, lasts 6 s, channels: CC1, CC3*
+*Starts 01:01.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 8). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -199,7 +215,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03e - International characters - German
 
-*Starts 01:02.00, lasts 6 s, channels: CC1, CC3*
+*Starts 01:07.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 9). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -214,7 +230,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C03f - International characters - Danish
 
-*Starts 01:08.00, lasts 6 s, channels: CC1, CC3*
+*Starts 01:13.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended characters (Table 10). Each extended character carries an automatic backspace, so the stream sends a fallback character first (as a legacy decoder would display); an extended-capable renderer must replace it. Row 7 shows the table, row 10+ a real phrase. A renderer that does not implement the optional set will show the fallback letters instead.
 
@@ -229,7 +245,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### C04 - Extended character automatic backspace
 
-*Starts 01:14.00, lasts 5 s, channels: CC1, CC3*
+*Starts 01:19.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Edge cases of the automatic backspace: an extended character must erase the character to its left (here the fallback 'A'), but when it is the first character on a row there is nothing to erase and the cursor must not move left of column 1.
 
@@ -245,7 +261,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A01a - PAC rows 1-4
 
-*Starts 01:19.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:24.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** All 15 rows addressable by PAC. Split into captions of at most four rows because the FCC requires only four simultaneous rows (C.5); rows 5-11 are the 'mid-screen' PACs added by the 1991 FCC rules (B.2 p.61).
 
@@ -260,7 +276,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A01b - PAC rows 5-8
 
-*Starts 01:23.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:28.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** All 15 rows addressable by PAC. Split into captions of at most four rows because the FCC requires only four simultaneous rows (C.5); rows 5-11 are the 'mid-screen' PACs added by the 1991 FCC rules (B.2 p.61).
 
@@ -275,7 +291,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A01c - PAC rows 9-12
 
-*Starts 01:27.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:32.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** All 15 rows addressable by PAC. Split into captions of at most four rows because the FCC requires only four simultaneous rows (C.5); rows 5-11 are the 'mid-screen' PACs added by the 1991 FCC rules (B.2 p.61).
 
@@ -290,7 +306,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A01d - PAC rows 13-15
 
-*Starts 01:31.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:36.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** All 15 rows addressable by PAC. Split into captions of at most four rows because the FCC requires only four simultaneous rows (C.5); rows 5-11 are the 'mid-screen' PACs added by the 1991 FCC rules (B.2 p.61).
 
@@ -305,7 +321,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A02a - PAC colors 1/2
 
-*Starts 01:35.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:40.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Foreground color, italics and underline selected by non-indenting PACs. A monochrome decoder may ignore color but must still honor spacing/underline (C.2).
 
@@ -320,7 +336,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A02b - PAC colors 2/2
 
-*Starts 01:39.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:44.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Foreground color, italics and underline selected by non-indenting PACs. A monochrome decoder may ignore color but must still honor spacing/underline (C.2).
 
@@ -335,7 +351,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A02c - PAC colors underlined 1/2
 
-*Starts 01:43.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:48.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Foreground color, italics and underline selected by non-indenting PACs. A monochrome decoder may ignore color but must still honor spacing/underline (C.2).
 
@@ -350,7 +366,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A02d - PAC colors underlined 2/2
 
-*Starts 01:47.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:52.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Foreground color, italics and underline selected by non-indenting PACs. A monochrome decoder may ignore color but must still honor spacing/underline (C.2).
 
@@ -365,7 +381,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A03a - PAC indents 0-12
 
-*Starts 01:51.00, lasts 4 s, channels: CC1, CC3*
+*Starts 01:56.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
 
@@ -380,7 +396,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A03b - PAC indents 16-28
 
-*Starts 01:55.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:00.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
 
@@ -395,7 +411,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A03c - PAC indents 0-12 underlined
 
-*Starts 01:59.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:04.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
 
@@ -410,7 +426,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A03d - PAC indents 16-28 underlined
 
-*Starts 02:03.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:08.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
 
@@ -425,7 +441,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A04 - Tab offsets TO1-TO3
 
-*Starts 02:07.00, lasts 5 s, channels: CC1, CC3*
+*Starts 02:12.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Tab offsets move the cursor 1-3 columns right without affecting the display (C.7); the rows start at PAC indent 0 plus TO0..TO2.
 
@@ -440,7 +456,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A05a - Mid-row codes 1/4
 
-*Starts 02:12.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:17.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Mid-row codes change color/italics/underline mid-line and occupy one (space) column. Sixteen codes over four cards.
 
@@ -454,7 +470,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A05b - Mid-row codes 2/4
 
-*Starts 02:16.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:21.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Mid-row codes change color/italics/underline mid-line and occupy one (space) column. Sixteen codes over four cards.
 
@@ -468,7 +484,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A05c - Mid-row codes 3/4
 
-*Starts 02:20.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:25.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Mid-row codes change color/italics/underline mid-line and occupy one (space) column. Sixteen codes over four cards.
 
@@ -482,7 +498,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A05d - Mid-row codes 4/4
 
-*Starts 02:24.00, lasts 4 s, channels: CC1, CC3*
+*Starts 02:29.00, lasts 4 s, channels: CC1, CC3*
 
 **Purpose.** Mid-row codes change color/italics/underline mid-line and occupy one (space) column. Sixteen codes over four cards.
 
@@ -496,7 +512,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A06 - Attribute inheritance
 
-*Starts 02:28.00, lasts 6 s, channels: CC1, CC3*
+*Starts 02:33.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** 608-E C.7: a character deposited next to an existing character assumes that character's attributes and the PAC's are ignored (row 6: green GREEN followed by an indent-4+TO2 white PAC at the next column). Conversely an indenting PAC with underline, then a Tab Offset, then text must underline (row 8).
 
@@ -510,7 +526,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A07 - Right margin, tab clamp, backspace edges
 
-*Starts 02:34.00, lasts 8 s, channels: CC1, CC3*
+*Starts 02:39.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** The cursor never passes column 32 (row 6: 32 letters then X, Y overwrite column 32, final Y). Tab offsets clamp at 32 (row 8: PAC indent 28 + TO1 + TO3 must stop at 32; Z is visible). A BS after a character in column 32 moves to column 31 and erases it (row 10: 'x' replaces column 31; column 32 may or may not be erased - both are legal). BS in column 1 is ignored (row 12: Q appears).
 
@@ -525,7 +541,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A08 - Default attributes after CR
 
-*Starts 02:42.00, lasts 7 s, channels: CC1, CC3*
+*Starts 02:47.00, lasts 7 s, channels: CC1, CC3*
 
 **Purpose.** When no attributes have been assigned the display shall be white, non-underlined, non-italic, non-flashing. A roll-up row started by CR with no PAC must not inherit the previous row's color.
 
@@ -539,7 +555,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A09a - Background colors (opaque)
 
-*Starts 02:49.00, lasts 5 s, channels: CC1, CC3*
+*Starts 02:54.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended attribute codes. Each code is preceded by a standard space and carries an automatic backspace so a standard decoder shows one space and an extended decoder shows one colored space. Unsupported background colors should default to black (6.2).
 
@@ -554,7 +570,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A09b - Background colors (semi-transparent)
 
-*Starts 02:54.00, lasts 5 s, channels: CC1, CC3*
+*Starts 02:59.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended attribute codes. Each code is preceded by a standard space and carries an automatic backspace so a standard decoder shows one space and an extended decoder shows one colored space. Unsupported background colors should default to black (6.2).
 
@@ -569,7 +585,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A09c - Foreground black and transparent background
 
-*Starts 02:59.00, lasts 5 s, channels: CC1, CC3*
+*Starts 03:04.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Optional extended attribute codes. Each code is preceded by a standard space and carries an automatic backspace so a standard decoder shows one space and an extended decoder shows one colored space. Unsupported background colors should default to black (6.2).
 
@@ -584,7 +600,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### A10 - Flash on (FON)
 
-*Starts 03:04.00, lasts 5 s, channels: CC1, CC3*
+*Starts 03:09.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Flash On is a spacing attribute. 608-E does not define the flash rate, and for flashing underlined text either only the characters or characters+underline may flash (C.19, optional).
 
@@ -601,7 +617,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### P01 - Pop-on: display, erase (EDM), display
 
-*Starts 03:09.00, lasts 8 s, channels: CC1, CC3*
+*Starts 03:14.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** The basic life cycle: load off-screen, flip with EOC (the first EOC lands exactly on the display frame, B.11.2), erase with EDM, load the next.
 
@@ -617,7 +633,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### P02 - Pop-on: loading is invisible until EOC
 
-*Starts 03:17.00, lasts 8 s, channels: CC1, CC3*
+*Starts 03:22.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** RCL only selects pop-on; data goes to non-displayed memory and must not appear until EOC. Three captions swap on exact frames.
 
@@ -632,7 +648,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### P03 - ENM erases non-displayed memory
 
-*Starts 03:25.00, lasts 8 s, channels: CC1, CC3*
+*Starts 03:30.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** ENM must clear the loading buffer unconditionally. BAD text is loaded then erased by ENM; the later EOC must show only the correct text.
 
@@ -647,7 +663,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### P04 - EDM erases any style
 
-*Starts 03:33.00, lasts 11 s, channels: CC1, CC3*
+*Starts 03:38.00, lasts 11 s, channels: CC1, CC3*
 
 **Purpose.** EDM erases a displayed caption whatever style produced it; it stands alone with no preceding RCL/RDC (B.11.4).
 
@@ -662,7 +678,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### P05 - More than four rows
 
-*Starts 03:44.00, lasts 6 s, channels: CC1, CC3*
+*Starts 03:49.00, lasts 6 s, channels: CC1, CC3*
 
 **Purpose.** The FCC requires four simultaneous rows; a fifth is assumed to be an error. Decoders should never discard data and should replace earlier rows with newer ones. The exact display is implementation-defined; this card documents what each renderer does.
 
@@ -679,7 +695,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R01 - Roll-up 3 rows, base row 15
 
-*Starts 03:50.00, lasts 13 s, channels: CC1, CC3*
+*Starts 03:55.00, lasts 13 s, channels: CC1, CC3*
 
 **Purpose.** Standard live-caption roll-up. Checks row depth, row discard order and (preferred) a smooth scroll lasting 0.20-0.433 s with characters visible during the scroll.
 
@@ -694,7 +710,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R02 - Roll-up 4 rows, base row 15
 
-*Starts 04:03.00, lasts 13 s, channels: CC1, CC3*
+*Starts 04:08.00, lasts 13 s, channels: CC1, CC3*
 
 **Purpose.** Four rows is the FCC maximum simultaneous caption depth.
 
@@ -709,7 +725,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R03 - Roll-up 2 rows, base row 15
 
-*Starts 04:16.00, lasts 11 s, channels: CC1, CC3*
+*Starts 04:21.00, lasts 11 s, channels: CC1, CC3*
 
 **Purpose.** Two-row roll-up.
 
@@ -723,7 +739,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R04 - Roll-up with per-row indents
 
-*Starts 04:27.00, lasts 13 s, channels: CC1, CC3*
+*Starts 04:32.00, lasts 13 s, channels: CC1, CC3*
 
 **Purpose.** The indent of each rolled row comes from that row's PAC.
 
@@ -738,7 +754,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R05 - Roll-up with per-row styles
 
-*Starts 04:40.00, lasts 13 s, channels: CC1, CC3*
+*Starts 04:45.00, lasts 13 s, channels: CC1, CC3*
 
 **Purpose.** Per-row attributes in roll-up come from each row's PAC.
 
@@ -753,7 +769,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R06 - Roll-up base row 5 (RU3)
 
-*Starts 04:53.00, lasts 11 s, channels: CC1, CC3*
+*Starts 04:58.00, lasts 11 s, channels: CC1, CC3*
 
 **Purpose.** Movable base row (a 1991 FCC addition; mid-screen base rows are not recognized by TeleCaption I/II).
 
@@ -768,7 +784,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R07 - PAC moves a displayed roll-up
 
-*Starts 05:04.00, lasts 12 s, channels: CC1, CC3*
+*Starts 05:09.00, lasts 12 s, channels: CC1, CC3*
 
 **Purpose.** Receiving a PAC for a different base row during roll-up moves the display immediately. (A PAC for the same base row only repositions the cursor.)
 
@@ -783,7 +799,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R08 - Roll-up depth vs base-row conflict
 
-*Starts 05:16.00, lasts 9 s, channels: CC1, CC3*
+*Starts 05:21.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** A 3-row roll-up cannot fit above base row 2. The FCC lets decoders choose depth or base row; 608-E recommends depth so no text is lost. Documents the choice each renderer makes.
 
@@ -798,7 +814,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R09 - Default base row
 
-*Starts 05:25.00, lasts 5 s, channels: CC1, CC3*
+*Starts 05:30.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** With no PAC the roll-up base row defaults to row 15 and the cursor to column 1.
 
@@ -812,7 +828,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R10 - Roll-up depth change RU3 to RU2
 
-*Starts 05:30.00, lasts 13 s, channels: CC1, CC3*
+*Starts 05:35.00, lasts 13 s, channels: CC1, CC3*
 
 **Purpose.** Informational: reducing depth mid-caption. Neither document states the exact result; this card records renderer behavior (most keep the last two rows).
 
@@ -826,7 +842,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### R11 - Three CRs = two rolls
 
-*Starts 05:43.00, lasts 7 s, channels: CC1, CC3*
+*Starts 05:48.00, lasts 7 s, channels: CC1, CC3*
 
 **Purpose.** Redundant-pair handling: of three identical consecutive control pairs, the second is a redundant copy of the first, so three CRs yield two carriage returns.
 
@@ -843,7 +859,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D01 - Paint-on: basic and mid-row
 
-*Starts 05:50.00, lasts 11 s, channels: CC1, CC3*
+*Starts 05:55.00, lasts 11 s, channels: CC1, CC3*
 
 **Purpose.** Paint-on writes directly to the display as bytes arrive (sent slowly here so the progression is visible).
 
@@ -858,7 +874,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D02 - RDC leaves a roll-up in place
 
-*Starts 06:01.00, lasts 9 s, channels: CC1, CC3*
+*Starts 06:06.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** RDC selects paint-on and has no other effect: displayed roll-up captions are untouched and the four-row limit still applies.
 
@@ -873,7 +889,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D03 - RCL leaves a displayed roll-up alone
 
-*Starts 06:10.00, lasts 11 s, channels: CC1, CC3*
+*Starts 06:15.00, lasts 11 s, channels: CC1, CC3*
 
 **Purpose.** RCL has no effect on a displayed roll-up; the next data goes to non-displayed memory. The EOC flips memories and the roll-up moves to non-displayed memory.
 
@@ -888,7 +904,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D04 - Backspace (BS)
 
-*Starts 06:21.00, lasts 9 s, channels: CC1, CC3*
+*Starts 06:26.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** BS erases the character to the left and moves the cursor back one column.
 
@@ -902,7 +918,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D05 - Delete to end of row (DER)
 
-*Starts 06:30.00, lasts 9 s, channels: CC1, CC3*
+*Starts 06:35.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** DER deletes from the cursor to the end of the row.
 
@@ -917,7 +933,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D06 - DER at column 1 frees a row
 
-*Starts 06:39.00, lasts 10 s, channels: CC1, CC3*
+*Starts 06:44.00, lasts 10 s, channels: CC1, CC3*
 
 **Purpose.** DER at column 1 erases the row AND de-allocates its memory, the only way to send a fifth row without erasing the screen. 608-E states all decoders shall implement this.
 
@@ -932,7 +948,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D07 - Pop-on then paint-on
 
-*Starts 06:49.00, lasts 9 s, channels: CC1, CC3*
+*Starts 06:54.00, lasts 9 s, channels: CC1, CC3*
 
 **Purpose.** Paint-on adds to whatever is displayed.
 
@@ -946,7 +962,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D08 - Roll-up erases pop-on in both memories; EOC swaps roll-up
 
-*Starts 06:58.00, lasts 16 s, channels: CC1, CC3*
+*Starts 07:03.00, lasts 16 s, channels: CC1, CC3*
 
 **Purpose.** Roll-up commands must erase pop-on/paint-on data in EITHER memory. An EOC while roll-up is selected swaps the whole roll-up caption into non-displayed memory (screen goes blank, since B was erased) and a second EOC brings it back in the same row order.
 
@@ -961,7 +977,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### D09 - Redundant control pairs vs repeated commands
 
-*Starts 07:14.00, lasts 10 s, channels: CC1, CC3*
+*Starts 07:19.00, lasts 10 s, channels: CC1, CC3*
 
 **Purpose.** A control code repeated in the very next frame is a redundant copy and must act once; the same code separated by a null frame is a new command. (10-A notes inserting a null can change interpretation of adjacent repeated codes.) Field 1 sends doubled pairs; field 2 sends single (B.14), so CC3 exercises the single-code path.
 
@@ -978,7 +994,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S01 - Caption sync to video flash
 
-*Starts 07:24.00, lasts 8 s, channels: CC1, CC3*
+*Starts 07:29.00, lasts 8 s, channels: CC1, CC3*
 
 **Purpose.** Decoders shall act within one video frame of the code pair (C.12). Each white flash is exactly the picture carrying the first EOC. 10-A recommends total decode delay no more than two frames.
 
@@ -998,7 +1014,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S02 - Caption persists on valid nulls
 
-*Starts 07:32.00, lasts 22 s, channels: CC1, CC3*
+*Starts 07:37.00, lasts 22 s, channels: CC1, CC3*
 
 **Purpose.** Nulls are valid caption data and mean 'hold'. A decoder implementing automatic erasure must wait at least 16 s (608-E). 10-A notes this contrasts with loss of waveform, which erases (card S03).
 
@@ -1015,7 +1031,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S03 - Loss of data erases captions; recovery
 
-*Starts 07:54.00, lasts 14 s, channels: CC1, CC3*
+*Starts 07:59.00, lasts 14 s, channels: CC1, CC3*
 
 **Purpose.** 608-E C.21: after 45 consecutive frames without valid data a decoder shall disable display and erase memory; on resumption it enables after 12-18 valid frames and displays the data received while counting. 10-A clarifies cc_valid=0 means 'no waveform' (decoder erases) as distinct from nulls (hold).
 
@@ -1031,7 +1047,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S04 - Field 2 loss only
 
-*Starts 08:08.00, lasts 12 s, channels: CC1, CC3*
+*Starts 08:13.00, lasts 12 s, channels: CC1, CC3*
 
 **Purpose.** Each field is evaluated independently; field 1 must remain valid whenever field 2 carries data (D.7).
 
@@ -1047,7 +1063,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### S05 - Invalid (even) parity data
 
-*Starts 08:20.00, lasts 12 s, channels: CC1, CC3*
+*Starts 08:25.00, lasts 12 s, channels: CC1, CC3*
 
 **Purpose.** Data bytes failing odd parity count as 'no valid data' toward the 45-frame disable rule.
 
@@ -1062,7 +1078,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### H01 - Channel isolation CC1 / CC2 / CC3 / CC4
 
-*Starts 08:32.00, lasts 11 s, channels: CC1-CC4*
+*Starts 08:37.00, lasts 11 s, channels: CC1-CC4*
 
 **Purpose.** Four independent caption services. Field 2 uses 0x15/0x1D in miscellaneous control codes (B.11.6). CC2 and CC4 deliver their test line inside their regular 2-second label refresh. 10-A recommends decoders let the viewer select CC1-CC4 even without a caption_service_descriptor (build with --no-caption-descriptor for that variant).
 
@@ -1078,7 +1094,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### Z99 - End of test
 
-*Starts 08:43.00, lasts 5 s, channels: CC1, CC3*
+*Starts 08:48.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Marks the end of the stream and clears the screen.
 
