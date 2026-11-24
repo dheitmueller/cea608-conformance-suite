@@ -111,6 +111,8 @@ def midrow_after_pac():
 DYNAMIC = [
     # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
+    # A10b: FON takes one cell over the C, Z takes the cell of the D (F.1.1.4 Table 52: a spacing attribute)
+    ("A10b", 2.5, {6: "AB ZEF"}),
     # S08: two runs of 44 frames without data, each ended by a valid pair, never reach 45 (C.21); the third run of 45 does
     ("S08", 4.9, {13: "A: 44 + 44 frames, still here"}),
     ("S08", 7.5, {}),

@@ -314,6 +314,21 @@ def a06(c, t0):
     c.popon(t0, [R(6, "{g}GREEN"), R(6, "TEXT", col=7), R(8, "UNDERLINED", col=9, ul=True)])
 
 
+@seg("A10b", "Flash on over occupied text", "paint-on 'ABCDEF', PAC to column 3, FON, then Z",
+     "row 6 reads 'AB ZEF': FON occupies column 3 as a (flashing) space over the C, and Z flashes in column 4 over the D", 6.0,
+     [E("F.1.1.4 Table 52", 99, REG), E("C.19", 76, OPT), E("C.7", 73, REG + "/" + PREF)],
+     "Flash On is a spacing attribute: it takes one cell, like a mid-row code, displayed as a space. Written over text "
+     "that is already on the row it replaces the character in that cell, and the characters after it take the flash "
+     "attribute as they overwrite the text there. A decoder that ignores the cell, or does not "
+     "refresh the display when FON arrives over text, shows 'ABCDEF' or 'ABZDEF'. Whether and how fast the text flashes is optional (card A10).")
+def a10b(c, t0):
+    c.at(t0)
+    c.put(c.EDM() + c.RDC() + c.pac(6) + c.tokens("ABCDEF"))
+    c.at(t0 + 1.5)
+    c.put(c.pac(6) + c.tab(2) + c.FON() + c.tokens("Z"))
+    clear(c, t0 + 3.0)
+
+
 @seg("A11", "Attribute inheritance next to an erased cell and a written space", "paint-on; BS BS then a PAC and a Tab Offset; a written space then the same",
      "row 6: X is white (the cell to its left was erased); row 8: X is green (the cell to its left is a green space)", 6.0,
      [E("C.7", 73, REG + "/" + PREF), E("B.3", 62, REC)],
