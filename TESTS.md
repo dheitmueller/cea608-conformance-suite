@@ -2,7 +2,7 @@
 
 By Devin Heitmueller. Licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
 
-74 cards, 09:13.99 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
+75 cards, 09:23.00 long. Two formats are built from the same cards: **720p59** (1280x720 progressive, 59.94 fps, 16:9) and **480i59** (720x480 anamorphic interlaced, 59.94 fields/s, 4:3), each as H.264 (default) or MPEG-2 at 3.5 Mbps CBR with AC-3 (128 kbps) in a 4 Mbps CBR MPEG-TS. Caption data: CEA-608 in ATSC A/53 `cc_data`; field 1 = CC1 (+CC2), field 2 = CC3 (+CC4). CC1 and CC3 carry identical tests; CC2 and CC4 show a continuous `Rendering on CCn` label (refreshed every 2 s) and are used by card H01. Two cards word their expectation differently per format and say so below.
 
 Each card's name, expected result and spec reference with its level are burned into the video, over a graticule showing the FCC safe caption area and the 15 x 32 grid.
 
@@ -1092,9 +1092,25 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 * CEA-CEB-10-A 25.2.1 p.39-40 - `10A-RECOMMENDATION`
 * CEA-CEB-10-A 20.2.4 p.35 - `10A-RECOMMENDATION`
 
+### S08 - A valid pair resets the count of frames without data
+
+*Starts 08:46.00, lasts 9 s, channels: CC1, CC3*
+
+**Purpose.** 608-E C.21: the display is disabled after 45 consecutive frames in which no data are detected; a frame in which both bytes have odd parity resets the count. Two runs of 44 frames, each ended by one valid pair, never reach 45, so the caption must stay. A decoder that counts all the frames without data, or does not reset on a valid frame, erases it too early. The third run of 45 frames erases it as in card S03.
+
+**Test.** 44 frames without data, one valid pair, 44 frames, one valid pair, 45 frames.
+
+**Expected.** caption A stays through the two runs of 44 frames; it is erased 45 frames into the third run (about 1.5 s after it starts)
+
+**References.**
+
+* CTA-608-E C.21 p.76-77 - `REGULATORY`
+* CEA-CEB-10-A 25.2.1 p.39-40 - `10A-RECOMMENDATION`
+* CEA-CEB-10-A 20.2.4 p.35 - `10A-RECOMMENDATION`
+
 ### S06 - A zero pair in the middle of a row
 
-*Starts 08:46.00, lasts 5 s, channels: CC1, CC3*
+*Starts 08:55.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** A pair whose bytes fail the odd parity check (here 0x00 0x00 with even parity, as some muxers pad) is not valid data (C.21). A single one must not cost the row: the characters before and after it are one row of text. The standard counts such pairs only toward the 45 frames that disable the display (card S05) and does not say what happens to the channel selection, so this card records whether the text that follows is still taken for the same channel.
 
@@ -1110,7 +1126,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### H01 - Channel isolation CC1 / CC2 / CC3 / CC4
 
-*Starts 08:51.00, lasts 11 s, channels: CC1-CC4*
+*Starts 09:00.00, lasts 11 s, channels: CC1-CC4*
 
 **Purpose.** Four independent caption services. Field 2 uses 0x15/0x1D in miscellaneous control codes (B.11.6). CC2 and CC4 deliver their test line inside their regular 2-second label refresh. 10-A recommends decoders let the viewer select CC1-CC4 even without a caption_service_descriptor (build with --no-caption-descriptor for that variant).
 
@@ -1126,7 +1142,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### H02 - A pair for another channel between two copies
 
-*Starts 09:02.00, lasts 7 s, channels: CC1, CC3*
+*Starts 09:11.00, lasts 7 s, channels: CC1, CC3*
 
 **Purpose.** A control code is sent twice in successive frames (D.2) and the second copy is redundant. Field 1 carries two channels (CC1 and CC2, or CC3 and CC4 on field 2), so a pair for the other channel can sit between the two EOCs of a caption: the two EOCs are then not in successive frames, and this card reads them as two commands (the standard is silent on this case). One caption is displayed and another is loaded off-screen; the EOC, an erase of the other channel and a second EOC then flip the memories twice, which leaves the caption that was displayed on screen. A decoder that forgets only on a pair of its own channel takes the second EOC for a copy and ends on the other caption.
 
@@ -1142,7 +1158,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 ### Z99 - End of test
 
-*Starts 09:09.00, lasts 5 s, channels: CC1, CC3*
+*Starts 09:18.00, lasts 5 s, channels: CC1, CC3*
 
 **Purpose.** Marks the end of the stream and clears the screen.
 

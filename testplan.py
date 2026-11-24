@@ -759,6 +759,24 @@ def s07(c, t0):
     clear(c, t0 + 8.0)
 
 
+@seg("S08", "A valid pair resets the count of frames without data", "44 frames without data, one valid pair, 44 frames, one valid pair, 45 frames",
+     "caption A stays through the two runs of 44 frames; it is erased 45 frames into the third run (about 1.5 s after it starts)", 9.0,
+     [E("C.21", "76-77", REG), A("25.2.1", "39-40"), A("20.2.4", 35)],
+     "608-E C.21: the display is disabled after 45 consecutive frames in which no data are detected; a frame in which "
+     "both bytes have odd parity resets the count. Two runs of 44 frames, each ended by one valid pair, never reach 45, so "
+     "the caption must stay. A decoder that counts all the frames without data, or does not reset on a valid frame, "
+     "erases it too early. The third run of 45 frames erases it as in card S03.")
+def s08(c, t0):
+    c.popon(t0, [R(13, "A: 44 + 44 frames, still here")])
+    c.at(t0 + 2.0)
+    c.field.gap(44)
+    c.field.pad_to(c.field.cursor + 1, c.name)
+    c.field.gap(44)
+    c.field.pad_to(c.field.cursor + 1, c.name)
+    c.at(t0 + 5.0)
+    c.field.gap(45)
+
+
 @seg("S06", "A zero pair in the middle of a row", "paint-on 'Before', one zero-filled even-parity pair, 'After'",
      "row 8 reads 'BeforeAfter': the bad pair is not data and the text around it is kept", 5.0,
      [E("C.21", "76-77", REG), A("A.1.1", 52, INFO),
