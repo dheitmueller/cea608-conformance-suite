@@ -111,6 +111,10 @@ def midrow_after_pac():
 DYNAMIC = [
     # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
+    # S07: B is complete 9 frames after the data returns (+6.3 s) and shows once the display is enabled again, 12-18
+    # frames after it (C.21); the model enables after 15 frames (+6.5 s)
+    ("S07", 6.4, {}),
+    ("S07", 6.8, {13: "B ok"}),
     # S06: one even-parity pair is not data, the text around it is kept (C.21)
     ("S06", 3.0, {8: "BeforeAfter"}),
 ]

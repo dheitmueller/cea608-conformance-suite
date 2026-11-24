@@ -36,6 +36,7 @@ from cea608 import (BASIC_SUBST, COLORS, EXT12, EXT13, PAC_ROW_BASE, PAC_ROW_FIR
 ROWS, COLS = 15, 32
 MIN_STATE_FRAMES = 12            # a caption state shown for under ~0.4 s gets no slide of its own
 LOSS_FRAMES = 45                 # C.21: frames without valid data before the display is disabled
+ENABLE_FRAMES = 15               # C.21: valid frames before a disabled display is enabled again (12 to 18, 0.40-0.60 s)
 RGB = {"w": (255, 255, 255), "g": (0, 255, 0), "b": (0, 0, 255), "c": (0, 255, 255),
        "r": (255, 0, 0), "y": (255, 255, 0), "m": (255, 0, 255), "k": (0, 0, 0)}
 PAC_ROW = {(PAC_ROW_FIRST[r], PAC_ROW_BASE[r] >= 0x60): r for r in PAC_ROW_FIRST}
@@ -251,16 +252,20 @@ class FieldDecoder:
         self.cur = None
         self.last = None
         self.bad = 0
+        self.good = 0                    # consecutive frames with valid data, while the display is disabled
+        self.enabled = True              # C.21: the display is disabled after 45 frames without valid data
+        self.blank = Memory().snapshot()
         # per channel: [(frame, snapshot of the displayed memory)] at every change
         self.states = {1: [(0, self.dec[1].shown.snapshot())], 2: [(0, self.dec[2].shown.snapshot())]}
 
     def run(self):
         for f, p in enumerate(self.pairs):
+            was = self.enabled
             self.step(p)
             for ch, d in self.dec.items():
-                if d.dirty:
+                if d.dirty or self.enabled != was:
                     d.dirty = False
-                    snap = d.shown.snapshot()
+                    snap = d.shown.snapshot() if self.enabled else self.blank
                     if snap != self.states[ch][-1][1]:
                         self.states[ch].append((f, snap))
 
@@ -268,12 +273,18 @@ class FieldDecoder:
         valid = p is not None and all(bin(b).count("1") % 2 == 1 for b in p)
         if not valid:
             self.bad += 1
+            self.good = 0
             self.last = None
             if self.bad == LOSS_FRAMES:                     # C.21: disable display, erase memory
+                self.enabled = False
                 for d in self.dec.values():
                     d.erase_all()
             return
         self.bad = 0
+        if not self.enabled:                                # C.21: enabled after n consecutive valid frames; the
+            self.good += 1                                  # data of those frames is kept and shown at the nth
+            if self.good >= ENABLE_FRAMES:
+                self.enabled = True
         a, b = p[0] & 0x7F, p[1] & 0x7F
         if a == 0 and b == 0:
             self.last = None

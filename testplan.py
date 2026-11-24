@@ -743,6 +743,22 @@ def s05(c, t0):
     c.popon(t0 + 8.0, [R(13, "Caption B: after bad parity")])
 
 
+@seg("S07", "Display enabled after 12-18 valid frames", "cc_valid=0 for 3 s, then a short caption loaded at once",
+     "A shown 0-3 s and erased after 45 frames; B is loaded 0.3 s after the data returns but appears only 0.40-0.60 s after it (12 to 18 frames), not before", 9.0,
+     [E("C.21", "76-77", REG), A("25.2.1", "39-40"), A("20.2.4", 35)],
+     "608-E C.21: after the display was disabled by a loss of data it is not enabled until n consecutive valid frames "
+     "have been received, n between 12 and 18 (0.40 to 0.60 s); the data of those frames is kept and displayed "
+     "immediately after the nth. Caption B (a pop-on of one word) is complete 9 frames after the data returns, "
+     "before the display is enabled again, so it must not be shown at its EOC but once the display is enabled. "
+     "A decoder that shows it at its EOC does not hold the display disabled.")
+def s07(c, t0):
+    c.popon(t0, [R(13, "A: before data loss")])
+    c.at(t0 + 3.0)
+    c.field.gap(90)
+    c.popon(t0 + 6.3, [R(13, "B ok")])
+    clear(c, t0 + 8.0)
+
+
 @seg("S06", "A zero pair in the middle of a row", "paint-on 'Before', one zero-filled even-parity pair, 'After'",
      "row 8 reads 'BeforeAfter': the bad pair is not data and the text around it is kept", 5.0,
      [E("C.21", "76-77", REG), A("A.1.1", 52, INFO),
