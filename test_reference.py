@@ -113,6 +113,9 @@ DYNAMIC = [
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
     # R12a: nothing is displayed any more after the BS: the default base row 15 (C.15)
     ("R12a", 2.5, {15: "Text on row 15"}),
+    # R12b: the roll-up resumes on its base row (not specified): the old row moves up with the CR
+    ("R12b", 2.8, {8: "Before text mode"}),
+    ("R12b", 5.0, {7: "Before text mode", 8: "Resumed"}),
     # R10b: RU3 over a displayed RU2 on base row 2 moves the rows down with the base row (C.4, preferred)
     ("R10b", 1.8, {1: "Row X", 2: "Row Y"}),
     ("R10b", 3.8, {2: "Row X", 3: "Row Y"}),

@@ -581,6 +581,23 @@ def r12a(c, t0):
     clear(c, t0 + 4.0)
 
 
+@seg("R12b", "Roll-up resumed after Text Mode", "RU3 on base row 8 with a character, RTD, text, RU3, CR, text",
+     "the roll-up goes on at its base row: 'Resumed' is on row 8 and the old row on row 7 (the standard is silent)", 7.0,
+     [("608-E C.15 and 7.4 do not say where a roll-up resumes after Text Mode", UNSPEC)],
+     "Text Mode interrupts a displayed roll-up without erasing it (card D10). Whether a roll-up command after it starts "
+     "again on row 15 or goes on at the base row of the roll-up that is still displayed is not stated; C.15 says row 15 "
+     "applies when no roll-up is displayed, and one is. This card records the choice: here the roll-up goes on at its "
+     "base row (the old row moves up to row 7).")
+def r12b(c, t0):
+    c.at(t0)
+    c.put(c.EDM() + c.RU(3) + c.pac(8) + c.tokens("Before text mode"))
+    c.at(t0 + 2.0)
+    c.put(c.misc(0x2B) + c.tokens("Text"))
+    c.at(t0 + 3.5)
+    c.put(c.RU(3) + c.CR() + c.tokens("Resumed"))
+    clear(c, t0 + 6.0)
+
+
 @seg("R10", "Roll-up depth change RU3 to RU2", "RU3 rows, then RU2 + CR",
      "final: two rows 'the caption has been' / 'displayed, like this.'", 13.0,
      [("608-E Annex C silent on resulting display", UNSPEC)],

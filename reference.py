@@ -186,6 +186,8 @@ class Decoder:
             if mem is self.shown:
                 self.mark()
         elif code in (0x25, 0x26, 0x27):                   # RU2-4
+            if self.mode == "text" and self.before_text == "roll":
+                self.mode = "roll"                         # RTD interrupted a roll-up: this resumes it (spec silent)
             if self.mode != "roll":
                 self.erase_all()                           # C.10: roll-up erases both memories
                 self.base, self.col = ROWS, 1
