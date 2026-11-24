@@ -234,7 +234,7 @@ group("Addressing and attributes (PAC, mid-row, tab offsets)")
 for _i, _rows in enumerate([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15]]):
     def _mk3(i, rows):
         @seg(f"A01{'abcd'[i]}", f"PAC rows {rows[0]}-{rows[-1]}", "preamble address codes select the row",
-             "'Row N' appears on row N (grid row N in the graticule)", 4.0,
+             "'Row N' appears on row N (grid row N in the graticule); each row sits on its own grid row, not stacked under the one above it", 4.0,
              [E("F.1.1.5 Table 53", 101, REG), E("C.5", 72, REG)],
              "All 15 rows addressable by PAC. Split into captions of at most four rows because the FCC "
              "requires only four simultaneous rows (C.5); rows 5-11 are the 'mid-screen' PACs added by the "
@@ -447,7 +447,8 @@ def r01(c, t0):
                           "Line 4 pushes line 1 off", "Line 5 pushes line 2 off", "Line 6: last line."])
 
 
-@seg("R02", "Roll-up 4 rows, base row 15", "RU4", "max 4 rows visible", 13.0,
+@seg("R02", "Roll-up 4 rows, base row 15", "RU4",
+     "max 4 rows visible; the newest row is always on row 15 and the older rows are on rows 14, 13 and 12", 13.0,
      [E("B.8.1", 65, REC), E("C.5", 72, REG)],
      "Four rows is the FCC maximum simultaneous caption depth.")
 def r02(c, t0):

@@ -267,7 +267,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** preamble address codes select the row.
 
-**Expected.** 'Row N' appears on row N (grid row N in the graticule)
+**Expected.** 'Row N' appears on row N (grid row N in the graticule); each row sits on its own grid row, not stacked under the one above it
 
 **References.**
 
@@ -282,7 +282,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** preamble address codes select the row.
 
-**Expected.** 'Row N' appears on row N (grid row N in the graticule)
+**Expected.** 'Row N' appears on row N (grid row N in the graticule); each row sits on its own grid row, not stacked under the one above it
 
 **References.**
 
@@ -297,7 +297,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** preamble address codes select the row.
 
-**Expected.** 'Row N' appears on row N (grid row N in the graticule)
+**Expected.** 'Row N' appears on row N (grid row N in the graticule); each row sits on its own grid row, not stacked under the one above it
 
 **References.**
 
@@ -312,7 +312,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** preamble address codes select the row.
 
-**Expected.** 'Row N' appears on row N (grid row N in the graticule)
+**Expected.** 'Row N' appears on row N (grid row N in the graticule); each row sits on its own grid row, not stacked under the one above it
 
 **References.**
 
@@ -716,7 +716,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** RU4.
 
-**Expected.** max 4 rows visible
+**Expected.** max 4 rows visible; the newest row is always on row 15 and the older rows are on rows 14, 13 and 12
 
 **References.**
 
