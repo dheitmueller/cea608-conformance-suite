@@ -698,6 +698,16 @@ def x264_opts(fmt):
             "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709", "-color_range", "tv"]
 
 
+def x264_opts_vbr(fmt):
+    """MP4 variant: constant quality, no HRD/filler, so the static cards compress to almost nothing."""
+    p = "aud=1:keyint=%d:min-keyint=1:bframes=2:b-pyramid=none:open-gop=0" % (fmt["gop"] * 4)
+    if fmt["interlaced"]:
+        p = "tff=1:" + p
+    return ["-c:v", "libx264", "-profile:v", "high", "-level", fmt["level"], "-preset", "slow", "-crf", "21",
+            "-x264-params", p, "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
+            "-color_range", "tv"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--format", choices=sorted(FORMATS), default="720p59",
@@ -711,6 +721,9 @@ def main():
                     help="override the burned-in version (default: git tag at HEAD, else git rev)")
     ap.add_argument("--no-caption-descriptor", action="store_true",
                     help="omit the PMT caption_service_descriptor (CEA-CEB-10-A 23.2.2 variant)")
+    ap.add_argument("--mp4", action="store_true",
+                    help="also write a small constant-quality (CRF) H.264 + AAC MP4 next to the transport stream, from the "
+                         "same captioned video (cc_data stays in the SEI of each sample; no PMT descriptor in MP4)")
     a = ap.parse_args()
     fmt = dict(FORMATS[a.format])
     if a.size:
@@ -746,6 +759,20 @@ def main():
                         "-metadata", f"service_provider={META['author']} {META['license']}",
                         "-metadata", f"service_name={META['name']} {VERSION[0]}",
                         out], check=True)
+        if a.mp4:
+            if a.codec != "h264":
+                sys.exit("--mp4 needs --codec h264")
+            vbr = os.path.join(tmp, "vbr.ts")
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-fflags", "+genpts", "-framerate", f"{vn}/{vd}",
+                            "-f", "mpegvideo", "-i", cc, "-f", "lavfi", "-i",
+                            f"aevalsrc=0.1*sin(2*PI*1000*t)*lt(mod(t\\,1)\\,0.1)|0.1*sin(2*PI*1000*t)*lt(mod(t\\,1)\\,0.1):s=48000:d={dur + 1}",
+                            "-map", "0:v", "-map", "1:a", *x264_opts_vbr(fmt), "-c:a", "aac", "-b:a", "96k",
+                            "-metadata:s:a:0", "language=eng", "-shortest", "-f", "mpegts", vbr], check=True)
+            print("fixed", fix_h264_cc_header(vbr), "cc_data headers (MP4)")
+            mp4 = os.path.splitext(out)[0] + ".mp4"
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", vbr, "-map", "0:v", "-map", "0:a", "-c", "copy",
+                            "-movflags", "+faststart", "-metadata", f"title={META['name']} {VERSION[0]}", mp4], check=True)
+            print("wrote", mp4)
     if a.codec == "h264":
         print("fixed", fix_h264_cc_header(out), "cc_data headers (CTA-708-E Table 2)")
     if not a.no_caption_descriptor:
