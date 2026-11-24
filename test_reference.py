@@ -123,6 +123,14 @@ DYNAMIC = [
 ]
 
 
+# Cells of dynamic cards: (card, offset, row, column, (character, colour)).
+CELLS = [
+    # A11: X next to an erased cell is white (the PAC's), X next to a written green space is green (C.7)
+    ("A11", 2.5, 6, 3, ("X", "w")),
+    ("A11", 2.5, 8, 3, ("X", "g")),
+]
+
+
 def row_texts(snap):
     out = {}
     for r, row in enumerate(snap):
@@ -147,6 +155,17 @@ def dynamic_checks(fields, starts):
             if got != want:
                 bad += 1
                 print(f"{cid} {name} at +{offset} s: model {got} expected {want}")
+    for cid, offset, row, col, want in CELLS:
+        i = ids.index(cid)
+        frame = sec2f(starts[i] + offset)
+        for name, (fi, ch) in {"CC1": (0, 1), "CC3": (1, 1)}.items():
+            snap = [s for f, s in fields[fi].states[ch] if f <= frame][-1]
+            cell = snap[row - 1][col - 1]
+            got = (cell[0], cell[1]) if cell else None
+            checked += 1
+            if got != want:
+                bad += 1
+                print(f"{cid} {name} at +{offset} s row {row} col {col}: model {got} expected {want}")
     print(f"{checked} dynamic card/channel states checked, {bad} differ")
     return bad
 

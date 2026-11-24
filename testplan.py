@@ -314,6 +314,22 @@ def a06(c, t0):
     c.popon(t0, [R(6, "{g}GREEN"), R(6, "TEXT", col=7), R(8, "UNDERLINED", col=9, ul=True)])
 
 
+@seg("A11", "Attribute inheritance next to an erased cell and a written space", "paint-on; BS BS then a PAC and a Tab Offset; a written space then the same",
+     "row 6: X is white (the cell to its left was erased); row 8: X is green (the cell to its left is a green space)", 6.0,
+     [E("C.7", 73, REG + "/" + PREF), E("B.3", 62, REC)],
+     "608-E C.7: a character deposited next to an existing character takes that character's attributes; the PAC's "
+     "are ignored. Row 6 writes two green characters and backspaces over both, so the cell to the left of the next "
+     "character is empty and the PAC's white applies. Row 8 writes a green character and a space (a character like "
+     "any other), then re-addresses the row with a PAC and a Tab Offset: the space is the cell to the left, so the "
+     "character takes its green. A decoder that treats a written space as empty, or keeps the colour of an erased cell, fails.")
+def a11(c, t0):
+    c.at(t0)
+    c.put(c.EDM() + c.RDC() + c.pac(6, 0, "g") + c.tokens("ab") + c.BS() + [(0, 0)] + c.BS()
+          + c.pac(6) + c.tab(2) + c.tokens("X"))
+    c.put(c.pac(8, 0, "g") + c.tokens("a ") + c.pac(8) + c.tab(2) + c.tokens("X"))
+    clear(c, t0 + 3.0)
+
+
 @seg("A07", "Right margin, tab clamp, backspace edges", "34 chars on a row; TO beyond col 32; BS at col 32 and col 1",
      "r6 ends in Y at col 32 | r8: lone Z at col 32 | r10: x at col 31 (col 32 either) | r12: Q at col 1", 8.0,
      [E("C.13", 75, REG + "/" + NORM), E("B.12", 69, REC)],
