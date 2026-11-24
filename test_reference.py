@@ -111,6 +111,10 @@ def midrow_after_pac():
 DYNAMIC = [
     # H02: EOC, EDM of the other channel, EOC: two commands, two flips (D.2: copies are in successive frames)
     ("H02", 4.5, {8: "Caption ONE: two flips"}),
+    # R07b: the block moves up by one row and back (C.7), old and new rows overlap
+    ("R07b", 3.2, {8: "Row one", 9: "Row two", 10: "Row three"}),
+    ("R07b", 4.5, {7: "Row one", 8: "Row two", 9: "Row three"}),
+    ("R07b", 6.5, {8: "Row one", 9: "Row two", 10: "Row three"}),
     # D10: Text Mode data and its DER belong to the text memory (7.4): the caption is unchanged
     ("D10", 2.6, {8: "Caption stays on screen"}),
     ("D10", 3.5, {8: "Caption stays on screen"}),

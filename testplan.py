@@ -534,6 +534,20 @@ def r07(c, t0):
     c.put(c.RU(3) + c.CR() + c.pac(8) + c.tokens("Now at base row 8"))
 
 
+@seg("R07b", "PAC moves a displayed roll-up by one row", "RU3 at base row 10, PAC for row 9, then PAC for row 10",
+     "three rows at base 10 (rows 8-10), then up one row to 7-9, then back to 8-10, each time as one block in order", 7.0,
+     [E("C.7", 73, REG), E("B.8.1", 65, REC)],
+     "A PAC for a different base row moves the displayed window at once. Moving by a single row makes the old and the "
+     "new rows overlap, so a decoder that copies the rows one by one, or moves them in the wrong order, loses or "
+     "duplicates a row. Card R07 moves the block by seven rows, where old and new rows do not overlap.")
+def r07b(c, t0):
+    rollup(c, t0, 3, 10, ["Row one", "Row two", "Row three"], step=1.0)
+    c.at(t0 + 3.5)
+    c.put(c.pac(9))
+    c.at(t0 + 5.0)
+    c.put(c.pac(10))
+
+
 @seg("R08", "Roll-up depth vs base-row conflict", "RU3 then PAC for row 2 (error condition)",
      "preferred: depth wins, all 3 rows kept (base moves to row 3); alternative: rows above row 1 lost", 9.0,
      [E("C.4", 72, PREF), E("B.5", "63-64", REC)],
