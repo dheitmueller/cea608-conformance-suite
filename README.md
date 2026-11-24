@@ -18,7 +18,7 @@ This project is in no way affiliated with the Consumer Technology Association or
 
 ## What you get
 
-Two transport streams (each also available as a much smaller MP4, see "The MP4 version") with the same 70 test cards (about 8 minutes 48 seconds each) that you play on the
+Two transport streams (each also available as a much smaller MP4, see "The MP4 version") with the same 82 test cards (about 10 minutes 8 seconds each) that you play on the
 decoder, player, set-top box or converter you want to check: a **16:9 stream at 720p59** and a **4:3 stream at
 480i59** (standard definition, interlaced). Each card exercises one caption feature (a character set, a
 positioning code, a caption style, a memory command, a signal-loss condition ...) and tells you, on screen,
