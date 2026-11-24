@@ -13,7 +13,7 @@ same field 1 bytes as the transport streams, at the same times:
     to that. The word that a decoder processes at a timecode is the pair that the stream carries at that frame.
   * Valid nulls (0x80 0x80) are not written: a run of captions ends at a null and the next run gets a timecode.
   * Frames without any waveform (cc_valid 0, the signal loss cards S03 and S04) cannot be represented either; they look
-    the same as nulls in the file.  The even parity data of card S05 is written as it is (word 0000).
+    the same as nulls in the file.  The even parity data of cards S05 and S06 is written as it is (word 0000).
 """
 import re
 

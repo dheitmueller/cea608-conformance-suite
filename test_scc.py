@@ -6,7 +6,7 @@
   * the drop-frame timecode: known values, the inverse, and that it follows the wall clock;
   * the file written for the stream's field 1 pairs carries exactly those pairs, at those frames: nothing lost,
     nothing added, no null or missing frame written;
-  * every word has odd parity, except in the window of card S05, which is the even parity data on purpose.
+  * every word has odd parity, except in the windows of cards S05 and S06, which have even parity data on purpose.
 """
 import sys
 
@@ -57,14 +57,14 @@ def test_stream():
               f"the run at frame {start} has a null or a missing frame")
 
     ids = [s.id for s in build.SEGMENTS]
-    s05 = ids.index("S05")
-    lo, hi = sec2f(starts[s05]), sec2f(starts[s05] + build.SEGMENTS[s05].dur)
+    wins = [(sec2f(starts[ids.index(c)]), sec2f(starts[ids.index(c)] + build.SEGMENTS[ids.index(c)].dur)) for c in ("S05", "S06")]
+    lo, hi = wins[0]
 
     def odd(b):
         return bin(b).count("1") % 2 == 1
 
-    bad = [n for n, (a, b) in parsed.items() if not (odd(a) and odd(b)) and not lo <= n < hi]
-    check(not bad, f"words without odd parity outside card S05, at frames {bad[:5]}")
+    bad = [n for n, (a, b) in parsed.items() if not (odd(a) and odd(b)) and not any(l <= n < h for l, h in wins)]
+    check(not bad, f"words without odd parity outside cards S05 and S06, at frames {bad[:5]}")
     check(any(not (odd(a) and odd(b)) for n, (a, b) in parsed.items() if lo <= n < hi),
           "card S05 has no even parity data in the file")
 
