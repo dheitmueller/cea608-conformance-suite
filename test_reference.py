@@ -70,8 +70,8 @@ def cells(rows, name):
                     it = False
                 elif b in ("i", "iu"):
                     fg, ul, it = "w", b.endswith("u"), True
-                elif b == "FA":
-                    fg, ul = "k", False
+                elif b in ("FA", "FAU"):
+                    fg, ul = "k", b == "FAU"
                 elif b.startswith("s:"):                     # raw special character
                     ch = cea608.SPECIAL[int(b[2:], 16) - 0x30]
                     if ch != "\xa0":                              # 0x39, the transparent space, draws nothing

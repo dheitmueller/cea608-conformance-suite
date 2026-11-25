@@ -381,9 +381,9 @@ for _id, _t, _rows, _exp in [
         ("A09b", "Background colors (semi-transparent)", ["{bg:rs}Semi-transparent red", "{bg:gs}Semi-transparent green",
                                                           "{bg:bs}Semi-transparent blue", "{bg:ks}Semi-transparent black"],
          "video shows through the box (renderer may fall back to opaque)"),
-        ("A09c", "Foreground black and transparent background", ["{bg:w}{FA}Black text on white", "{bg:y}{FA}Black text on yellow",
+        ("A09c", "Foreground black and transparent background", ["{bg:w}{FA}Black text on white", "{bg:y}{FA}Black on yellow {FAU}underlined",
                                                                   "{BT}Transparent background", "{bg:k}Opaque black default"],
-         "black text on light boxes; third row without any box")]:
+         "black text on light boxes; the end of row 7 also underlined; third row without any box")]:
     def _mk7(id, t, rows, exp):
         @seg(id, t, "background/foreground attribute codes (standard space + code with automatic BS)", exp, 5.0,
              [E("6.2", 16, OPT), E("Table 3", 17, OPT)],

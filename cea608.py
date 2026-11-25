@@ -232,6 +232,8 @@ class Chan:
                     out += self.attr(0x2D)
                 elif body == "FA":
                     out += self.attr(0x2E)
+                elif body == "FAU":
+                    out += self.attr(0x2F)
                 elif body == "FON":
                     out += self.FON()
                 else:

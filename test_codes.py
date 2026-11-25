@@ -58,6 +58,17 @@ def main():
         al = "".join(c[5] if c else "." for c in row[:12])
         check(f"C02 row 11 draws a gap in the red run (field {fi + 1})", al == "oo" + "t" + "o" + "t" + "o" + "." * 6, al)
 
+    # A09c: foreground black underlined (FAU, 0x17 0x2F) in the middle of a black-on-yellow row
+    sends("A09c FAU 0x17 0x2F", 0x17, 0x2F)
+    for fi in (0, 1):
+        row = snapshot("A09c", fi)[6]                      # row 7: "Black on yellow " then FAU then "underlined"
+        text = "".join(c[0] if c else "." for c in row)
+        k = text.index("underlined")
+        before = [c for c in row[2:k - 1] if c and c[0] != " "]
+        after = [c for c in row[k:k + 10]]
+        check(f"A09c row 7 is black, underlined only after FAU (field {fi + 1})",
+              all(c[1:3] == ("k", False) for c in before) and all(c[1:3] == ("k", True) for c in after), text)
+
     print(f"{len(FAILS)} failed")
     return 1 if FAILS else 0
 

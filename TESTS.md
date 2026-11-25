@@ -622,7 +622,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** background/foreground attribute codes (standard space + code with automatic BS).
 
-**Expected.** black text on light boxes; third row without any box
+**Expected.** black text on light boxes; the end of row 7 also underlined; third row without any box
 
 **References.**
 

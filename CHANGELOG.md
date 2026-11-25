@@ -36,6 +36,7 @@ Not released yet.
   EIA-608 stream (https://github.com/madera/CEA-x08, v3.0, MIT) showed a few codes it sends that ours never did. The
   card list, timing and expectations of every other card are unchanged; the cards below carry the extra rows.
   * C02 now sends the transparent space (`0x11 0x39`) inside a run of red background.
+  * A09c row 7 now continues from black to black underlined (`0x17 0x2F`, FAU) on its yellow background.
 
 ## v1.2 (2026-10-14)
 
