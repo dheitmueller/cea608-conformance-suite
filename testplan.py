@@ -276,9 +276,10 @@ for _i, (_inds, _ul) in enumerate([((0, 4, 8, 12), False), ((16, 20, 24, 28), Fa
         @seg(f"A03{'abcd'[i]}", f"PAC indents {inds[0]}-{inds[-1]}{' underlined' if ul else ''}",
              "indenting PAC: column = indent + 1", "numbers step right by 4 columns" + (", underlined" if ul else ""), 4.0,
              [E("F.1.1.5 Table 53", 101, REG), E("C.7", 73, REG + "/" + PREF)],
-             "Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.")
+             "Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline. "
+             "Indent 0 is sent as the indenting PAC (0x50/0x51) and not as the white color PAC that also lands in column 1.")
         def f(c, t0):
-            c.popon(t0, [R(5 + 2 * k, str(n), col=n + 1, ul=ul) for k, n in enumerate(inds)])
+            c.popon(t0, [R(5 + 2 * k, str(n), col=n + 1, ul=ul, indent0=(n == 0)) for k, n in enumerate(inds)])
     _mk5(_i, _inds, _ul)
 
 

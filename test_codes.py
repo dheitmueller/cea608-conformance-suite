@@ -69,6 +69,15 @@ def main():
         check(f"A09c row 7 is black, underlined only after FAU (field {fi + 1})",
               all(c[1:3] == ("k", False) for c in before) and all(c[1:3] == ("k", True) for c in after), text)
 
+    # A03a/A03c: an indenting PAC with indent 0 (0x50 plain, 0x51 underlined), row 5 = 0x15
+    sends("A03a indent 0 PAC 0x15 0x50", 0x15, 0x50)
+    sends("A03c indent 0 underlined PAC 0x15 0x51", 0x15, 0x51)
+    for fi in (0, 1):
+        for cid, ul in (("A03a", False), ("A03c", True)):
+            c = snapshot(cid, fi)[4][0]                    # row 5, column 1
+            check(f"{cid} row 5 starts in column 1, white, ul={ul} (field {fi + 1})",
+                  c is not None and c[0] == "0" and c[1:3] == ("w", ul), str(c))
+
     print(f"{len(FAILS)} failed")
     return 1 if FAILS else 0
 

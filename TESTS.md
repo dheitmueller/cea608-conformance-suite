@@ -383,7 +383,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 01:56.00, lasts 4 s, channels: CC1, CC3*
 
-**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
+**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline. Indent 0 is sent as the indenting PAC (0x50/0x51) and not as the white color PAC that also lands in column 1.
 
 **Test.** indenting PAC: column = indent + 1.
 
@@ -398,7 +398,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 02:00.00, lasts 4 s, channels: CC1, CC3*
 
-**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
+**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline. Indent 0 is sent as the indenting PAC (0x50/0x51) and not as the white color PAC that also lands in column 1.
 
 **Test.** indenting PAC: column = indent + 1.
 
@@ -413,7 +413,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 02:04.00, lasts 4 s, channels: CC1, CC3*
 
-**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
+**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline. Indent 0 is sent as the indenting PAC (0x50/0x51) and not as the white color PAC that also lands in column 1.
 
 **Test.** indenting PAC: column = indent + 1.
 
@@ -428,7 +428,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 02:08.00, lasts 4 s, channels: CC1, CC3*
 
-**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline.
+**Purpose.** Indenting PACs (0, 4, ... 28 columns). An indenting PAC carries white, non-italic, and sets only underline. Indent 0 is sent as the indenting PAC (0x50/0x51) and not as the white color PAC that also lands in column 1.
 
 **Test.** indenting PAC: column = indent + 1.
 

@@ -37,6 +37,8 @@ Not released yet.
   card list, timing and expectations of every other card are unchanged; the cards below carry the extra rows.
   * C02 now sends the transparent space (`0x11 0x39`) inside a run of red background.
   * A09c row 7 now continues from black to black underlined (`0x17 0x2F`, FAU) on its yellow background.
+  * A03a and A03c now send column 1 with the indenting PAC for indent 0 (`0x50`, `0x51` underlined). The generator
+    used to fold indent 0 into the white color PAC (`0x40`), so no card sent it.
 
 ## v1.2 (2026-10-14)
 

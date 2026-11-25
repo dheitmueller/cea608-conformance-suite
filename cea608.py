@@ -122,8 +122,9 @@ def pack(tokens):
 class R:
     """A caption row: row 1-15, 1-based start column, optional PAC style."""
 
-    def __init__(self, row, text, col=1, color=None, italic=False, ul=False, overflow=False):
+    def __init__(self, row, text, col=1, color=None, italic=False, ul=False, overflow=False, indent0=False):
         self.overflow = overflow
+        self.indent0 = indent0          # column 1 by an indenting PAC (0x50 family), not a color PAC
         self.row, self.text, self.col = row, text, col
         self.color, self.italic, self.ul = color, italic, ul
 
@@ -142,10 +143,11 @@ class Chan:
     def misc(self, code):
         return self._rep((self._f(0x14 if self.field.idx == 0 else 0x15), code))
 
-    def pac(self, row, indent=0, color=None, italic=False, ul=False):
-        if indent and (color or italic):
+    def pac(self, row, indent=0, color=None, italic=False, ul=False, indent0=False):
+        """indent0: an indenting PAC for column 1 (0x50/0x51) instead of the white color PAC (0x40/0x41)."""
+        if (indent or indent0) and (color or italic):
             raise ValueError("PAC carries either indent or color/italic")
-        if indent:
+        if indent or indent0:
             code = 0x10 + 2 * (indent // 4)
         elif italic:
             code = 0x0E
@@ -248,7 +250,7 @@ class Chan:
         tabn = (r.col - 1) - indent
         if r.col - 1 + self.width(r.text) > 32 and not r.overflow:
             raise ValueError(f"row text overflows 32 columns: {r.text!r} at col {r.col}")
-        return (self.pac(r.row, indent, r.color, r.italic, r.ul)
+        return (self.pac(r.row, indent, r.color, r.italic, r.ul, r.indent0)
                 + self.tab(tabn) + self.tokens(r.text, overflow=True))
 
     # ---- stream placement
