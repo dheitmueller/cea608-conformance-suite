@@ -176,6 +176,27 @@ def background_across_midrow():
     return bad
 
 
+def attribute_cell():
+    """6.2: the cell of a Foreground Black Underline code keeps the underline of the text before it and the underline of the
+    code starts with the next character (card A09c).  Returns the number of differences."""
+    f = Field(0)
+    c = Chan("CC1", f, 1, True)
+    c.popon(1.5, [testplan.R(5, "ab{bg:r}{FAU}cd")])
+    fd = reference.FieldDecoder(f.pairs)
+    fd.run()
+    snap = fd.states[1][-1][1]
+    bad = 0
+    # row 5: a b [bg cell] [FAU cell] c d
+    for col, ch, fg, ul, bg in [(3, " ", "w", False, "r"), (4, " ", "k", False, "r"), (5, "c", "k", True, "r"),
+                                (6, "d", "k", True, "r")]:
+        x = snap[4][col - 1]
+        if not x or (x[0], x[1], x[2], x[4]) != (ch, fg, ul, bg):
+            bad += 1
+            print(f"attribute cell: col {col}: model {(x[0], x[1], x[2], x[4]) if x else None}, intended {(ch, fg, ul, bg)}")
+    print(f"foreground attribute code cell: {bad} differ")
+    return bad
+
+
 def row_texts(snap):
     out = {}
     for r, row in enumerate(snap):
@@ -244,6 +265,7 @@ def main():
     bad += dynamic_checks(fields, starts)
     bad += midrow_after_pac()
     bad += background_across_midrow()
+    bad += attribute_cell()
     return 1 if bad else 0
 
 

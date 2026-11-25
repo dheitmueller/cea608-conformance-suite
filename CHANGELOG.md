@@ -37,6 +37,9 @@ Not released yet.
   card list, timing and expectations of every other card are unchanged; the cards below carry the extra rows.
   * C02 now sends the transparent space (`0x11 0x39`) inside a run of red background.
   * A09c row 7 now continues from black to black underlined (`0x17 0x2F`, FAU) on its yellow background.
+    The standard does not say whether the cell of the FAU code is underlined (CTA-608-E 6.2: a standard decoder ignores the code
+    and the formatting has to be the same on all decoders), so the card now expects it is not: the underline starts with the first
+    letter after it, and the cell is recorded as UNSPECIFIED. The reference slides follow.
   * A03a and A03c now send column 1 with the indenting PAC for indent 0 (`0x50`, `0x51` underlined). The generator
     used to fold indent 0 into the white color PAC (`0x40`), so no card sent it.
   * A09a and A09b now also send the five background colors that were missing, so all 16 background codes appear

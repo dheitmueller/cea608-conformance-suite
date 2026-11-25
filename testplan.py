@@ -387,13 +387,17 @@ for _id, _t, _rows, _exp in [
          "white (black text), cyan, yellow, magenta"),
         ("A09c", "Foreground black and transparent background", ["{bg:w}{FA}Black text on white", "{bg:y}{FA}Black on yellow {FAU}underlined",
                                                                   "{BT}Transparent background", "{bg:k}Opaque black default"],
-         "black text on light boxes; the end of row 7 also underlined; third row without any box")]:
+         "black text on light boxes; the end of row 7 also underlined, from its first letter; third row without any box")]:
     def _mk7(id, t, rows, exp):
         @seg(id, t, "background/foreground attribute codes (standard space + code with automatic BS)", exp, 5.0,
-             [E("6.2", 16, OPT), E("Table 3", 17, OPT)],
+             [E("6.2", 16, OPT), E("Table 3", 17, OPT)] + ([E("6.2", 16, UNSPEC)] if id == "A09c" else []),
              "Optional extended attribute codes. Each code is preceded by a standard space and carries an "
              "automatic backspace so a standard decoder shows one space and an extended decoder shows one "
-             "colored space. Unsupported background colors should default to black (6.2).")
+             "colored space. Unsupported background colors should default to black (6.2)."
+             + (" The standard does not say whether the cell of the underline code (FAU) is underlined. A standard decoder "
+                "ignores the code and the formatting has to be the same on all decoders, so this card expects the cell not "
+                "to be underlined and the underline to start with the first letter after it (an underlined space between two "
+                "words would look like an error). Record what your decoder does." if id == "A09c" else ""))
         def f(c, t0):
             c.popon(t0, [R(5 + 2 * k, txt) for k, txt in enumerate(rows)])
     _mk7(_id, _t, _rows, _exp)

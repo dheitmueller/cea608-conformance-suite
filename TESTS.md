@@ -618,16 +618,17 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 03:16.00, lasts 5 s, channels: CC1, CC3*
 
-**Purpose.** Optional extended attribute codes. Each code is preceded by a standard space and carries an automatic backspace so a standard decoder shows one space and an extended decoder shows one colored space. Unsupported background colors should default to black (6.2).
+**Purpose.** Optional extended attribute codes. Each code is preceded by a standard space and carries an automatic backspace so a standard decoder shows one space and an extended decoder shows one colored space. Unsupported background colors should default to black (6.2). The standard does not say whether the cell of the underline code (FAU) is underlined. A standard decoder ignores the code and the formatting has to be the same on all decoders, so this card expects the cell not to be underlined and the underline to start with the first letter after it (an underlined space between two words would look like an error). Record what your decoder does.
 
 **Test.** background/foreground attribute codes (standard space + code with automatic BS).
 
-**Expected.** black text on light boxes; the end of row 7 also underlined; third row without any box
+**Expected.** black text on light boxes; the end of row 7 also underlined, from its first letter; third row without any box
 
 **References.**
 
 * CTA-608-E 6.2 p.16 - `OPTIONAL`
 * CTA-608-E Table 3 p.17 - `OPTIONAL`
+* CTA-608-E 6.2 p.16 - `UNSPECIFIED`
 
 ### A10 - Flash on (FON)
 

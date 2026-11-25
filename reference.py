@@ -260,7 +260,11 @@ class Decoder:
         if code == 0x2D:
             self.spacing(al="t")
         else:
-            self.spacing(fg="k", ul=code == 0x2F)
+            # 6.2: a standard decoder ignores the code and shows the space with the attributes of the text before it, and
+            # the formatting has to be the same on all decoders: the cell keeps the underline it had and the underline of the
+            # code starts with the next character (the standard does not say; card A09c records it)
+            self.spacing(fg="k")
+            self.style[1] = code == 0x2F
 
     def extended(self, first, code):
         if self.col > 1:
