@@ -36,6 +36,7 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from cea608 import Chan, Field, FPS_D, FPS_N, R, burst_pairs, parity, sec2f  # noqa: E402
+import cea708  # noqa: E402
 
 # Output formats.  canvas = square-pixel drawing size; coded = what is encoded (480i59 is anamorphic:
 # the 640x480 canvas is scaled to 720x480 with pixel aspect ratio 8:9, display aspect ratio 4:3).
@@ -470,19 +471,27 @@ def mpeg2_user_data(items, cc_count):
     return b"\x00\x00\x01\xb2GA94\x03" + cc_payload(items, cc_count)
 
 
-def picture_items(v, f1, f2, ppf):
+def picture_items(v, f1, f2, ppf, dtvcc=None, only=False):
     """The NTSC pairs carried by display-order picture v.
     ppf 2 (59.94 fps progressive): one pair, field 1 on even pictures, field 2 on odd ones, alternating
     (CEA-CEB-10-A 18.1 p.34 / 25.2.2 p.40).  ppf 1 (interlaced frame): both pairs, the cc_type 01 (field 2)
-    pair first for top-field-first video (708-B 4.4.2 as quoted in 10-A Annex B p.53)."""
+    pair first for top-field-first video (708-B 4.4.2 as quoted in 10-A Annex B p.53).
+    ``dtvcc`` (cea708.Upconverter.run) adds the DTVCC triplets after the NTSC pairs (CTA-708-E 4.3.1: the CEA-608
+    data comes first); ``only`` leaves the NTSC pairs out."""
     def pair(fld, c):
         return fld.pairs[c] if c < len(fld.pairs) else NULLP
-    if ppf == 2:
-        return [(0, pair(f1, v // 2))] if v % 2 == 0 else [(1, pair(f2, v // 2))]
-    return [(1, pair(f2, v)), (0, pair(f1, v))]
+    if only:
+        items = []
+    elif ppf == 2:
+        items = [(0, pair(f1, v // 2))] if v % 2 == 0 else [(1, pair(f2, v // 2))]
+    else:
+        items = [(1, pair(f2, v)), (0, pair(f1, v))]
+    if dtvcc is not None and v < len(dtvcc):
+        items = items + dtvcc[v]
+    return items
 
 
-def inject(src, dst, f1, f2, fmt):
+def inject(src, dst, f1, f2, fmt, dtvcc=None, only=False):
     d = open(src, "rb").read()
     toks = [(m.start(), m.group()[3]) for m in re.finditer(rb"\x00\x00\x01[\x00\xb8\x01]", d)]
     ins = []
@@ -497,7 +506,7 @@ def inject(src, dst, f1, f2, fmt):
             cur = gop_base + tr
             count += 1
         elif cur is not None:       # first slice after a picture header
-            ins.append((pos, mpeg2_user_data(picture_items(cur, f1, f2, fmt["ppf"]), fmt["cc_count"])))
+            ins.append((pos, mpeg2_user_data(picture_items(cur, f1, f2, fmt["ppf"], dtvcc, only), fmt["cc_count"])))
             cur = None
     out, last = [], 0
     for pos, pl in ins:
@@ -518,17 +527,25 @@ def crc32_mpeg(b):
     return crc
 
 
-def caption_descriptor():
+def caption_descriptor(dtvcc="off", wide=True):
     """ATSC A/65:2013 caption_service_descriptor (0x86) with ONE entry for the CEA-608 data stream
     (digital_cc = 0): 'each iteration defines one 708 service or one 608 data stream', and CTA-708-E 4.5
     allows at most one 608 data stream to be signalled.  For a 608 entry language, easy_reader and
     wide_aspect_ratio have no meaning and line21_field is not expected to be used by receivers
-    (A/65:2013 p.69-70); they are set to neutral values.  The 608 data itself identifies CC1-CC4."""
-    body = bytes([0xE0 | 1]) + b"eng" + bytes([0x7E | 1, 0x3F, 0xFF])
+    (A/65:2013 p.69-70); they are set to neutral values.  The 608 data itself identifies CC1-CC4.
+    With a DTVCC build (``dtvcc`` 'both' or 'only') there is one more entry per 708 service 1-4 (digital_cc = 1,
+    caption_service_number, wide_aspect_ratio as the picture), and 'only' drops the 608 entry."""
+    ent = []
+    if dtvcc != "only":
+        ent.append(b"eng" + bytes([0x7E | 1, 0x3F, 0xFF]))
+    if dtvcc != "off":
+        for n in range(1, cea708.SERVICES + 1):
+            ent.append(b"eng" + bytes([0xC0 | n, (0x40 if wide else 0) | 0x3F, 0xFF]))
+    body = bytes([0xE0 | len(ent)]) + b"".join(ent)
     return bytes([0x86, len(body)]) + body
 
 
-def patch_pmt(path):
+def patch_pmt(path, dtvcc="off", wide=True):
     data = bytearray(open(path, "rb").read())
     pmt_pid = None
     for i in range(0, len(data), 188):
@@ -537,7 +554,7 @@ def patch_pmt(path):
             pmt_pid = ((data[i + 15] & 0x1F) << 8) | data[i + 16]
             break
     n = 0
-    desc = caption_descriptor()
+    desc = caption_descriptor(dtvcc, wide)
     for i in range(0, len(data), 188):
         pid = ((data[i + 1] & 0x1F) << 8) | data[i + 2]
         if pid != pmt_pid or not data[i + 1] & 0x40:
@@ -741,6 +758,12 @@ def main():
                     help="override the burned-in version (default: git tag at HEAD, else git rev)")
     ap.add_argument("--no-caption-descriptor", action="store_true",
                     help="omit the PMT caption_service_descriptor (CEA-CEB-10-A 23.2.2 variant)")
+    ap.add_argument("--dtvcc", choices=("off", "both", "only"), default="off",
+                    help="CEA-708: 'both' adds the 608 captions up-converted to 708 services 1-4 (cc_type 2/3) next to "
+                         "the 608 data, 'only' leaves the 608 pairs out (cea708.py)")
+    ap.add_argument("--dtvcc-swap", choices=("toggle", "showhide"), default="showhide",
+                    help="how an end-of-caption command swaps the two window sets: HideWindows + DisplayWindows "
+                         "(default) or ToggleWindows (10-A 27.2.2.3 option A)")
     ap.add_argument("--mp4", action="store_true",
                     help="also write a small constant-quality (CRF) H.264 + AAC MP4 next to the transport stream, from the "
                          "same captioned video (cc_data stays in the SEI of each sample; no PMT descriptor in MP4)")
@@ -756,9 +779,12 @@ def main():
     import testplan
     testplan.apply_format(a.format)
     VERSION[0] = a.version_label or git_version()
-    suffix = "-nodesc" if a.no_caption_descriptor else ""
+    suffix = ("-dtvcc" if a.dtvcc == "both" else "-dtvcc-only" if a.dtvcc == "only" else "") + \
+             ("-nodesc" if a.no_caption_descriptor else "")
     safe = re.sub(r"[^A-Za-z0-9._+-]", "_", VERSION[0])
     out = a.out or os.path.join(HERE, "out", f"CEA608-conformance-{safe}-{a.format}-{a.codec}{suffix}.ts")
+    if a.dtvcc != "off" and not a.version_label:
+        VERSION[0] += " +708" if a.dtvcc == "both" else " +708only"    # burned into the picture
     os.makedirs(os.path.dirname(out), exist_ok=True)
     f1, f2, starts, total, n_labels = schedule()
     if a.scc or a.scc_only:
@@ -774,7 +800,12 @@ def main():
     with tempfile.TemporaryDirectory(dir=os.environ.get("KEEP_TMP")) as tmp:
         m2v, cc = os.path.join(tmp, "v.m2v"), os.path.join(tmp, "cc.m2v")
         render_video(starts, total, m2v, a.codec, fmt)
-        print(f"injected cc_data into {inject(m2v, cc, f1, f2, fmt)} pictures ({a.codec})")
+        extra = None
+        if a.dtvcc != "off":
+            up = cea708.Upconverter(aspect=fmt["dar"], erase_on_loss=True, swap=a.dtvcc_swap)
+            extra = up.run(f1, f2, fmt["ppf"], fmt["cc_count"], only=a.dtvcc == "only")
+            print(f"up-converted to {up.mux.sent} DTVCC packets, longest wait {up.mux.max_wait} pictures")
+        print(f"injected cc_data into {inject(m2v, cc, f1, f2, fmt, extra, a.dtvcc == 'only')} pictures ({a.codec})")
         # H.264: libavcodec's MPEG-2 decoder exports the A53 cc_data as frame side data and libx264
         # re-emits it verbatim as the ITU-T T.35 'GA94' SEI of each access unit (display-order association
         # handled by ffmpeg).  MPEG-2: the injected stream is copied.
@@ -806,7 +837,7 @@ def main():
     if a.codec == "h264":
         print("fixed", fix_h264_cc_header(out), "cc_data headers (CTA-708-E Table 2)")
     if not a.no_caption_descriptor:
-        print("patched", patch_pmt(out), "PMT packets")
+        print("patched", patch_pmt(out, a.dtvcc, fmt["dar"] == "16:9"), "PMT packets")
     write_tests_md(os.path.join(HERE, "TESTS.md"), starts, total)
     write_cards_json(os.path.join(HERE, "cards.json"), starts, total)
     print("wrote", out)

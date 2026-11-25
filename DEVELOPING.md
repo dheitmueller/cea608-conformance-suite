@@ -16,6 +16,10 @@ If you want to send changes back, make a release or label a derivative stream, s
 | `scc.py` | SCC export: the field 1 pairs of a build as an SCC file (drop-frame timecode); plain Python, no dependencies (`build.py --scc`, `--scc-only`) |
 | `test_scc.py` | Checks the SCC export: the timecodes, that the file carries exactly the stream's field 1 pairs, and the parity (`python test_scc.py`) |
 | `test_reference.py` | Checks that decoder model against the generator's own intended layout for the static pop-on cards (`python test_reference.py`); run it after changing `reference.py` or a card |
+| `cea708.py` | The CEA-708 (DTVCC) encoder and the **608 -> 708 up-converter** (service blocks, caption channel packets, the window/pen mapping of each 608 caption style); pure Python, written from CTA-708-E and CEA-CEB-10-A (see "The CEA-708 variant" below) |
+| `cea708_decode.py` | **Reference 708 decoder**: `cc_data` triplets to caption channel packets, service blocks, windows and pens; flattens the visible windows to the 608 15 x 32 grid so the result can be compared with `reference.py` |
+| `test_cea708.py` | Checks both (`python test_cea708.py`, a few seconds): the byte examples of CTA-708-E 8.10.5, decoder unit tests, and for every card of both formats that 608 -> 708 -> decode equals the 608 reference decoder |
+| `dtvcc_ts.py` | Reads the `cc_data` of a built stream (H.264 SEI or MPEG-2 user data) and decodes it with the reference decoder: `--check` (compare with the 608 reference per card), `--dump`, `--summary` |
 | `TESTS.md` | Generated at every build from `testplan.py` (covering both formats). **Committed**, because the README links to it and it is browsable on GitHub: commit the regenerated copy with any change to the plan; the release workflow fails if it is stale |
 | `cards.json` | Machine-readable card list (ids, start times, durations, channels, references, expected results, per-format variants), generated at every build. **Not committed** (git-ignored); the validation tooling reads it after a build |
 | `screenshot.py` | Generates the annotated screenshot of the README from the build: the frame of a card (G02) drawn by the same code as the video, with the nine numbered callouts placed from the layout; `--check` tells whether the committed image shows the current cards (`python screenshot.py`, `python screenshot.py --check`) |
@@ -27,7 +31,7 @@ If you want to send changes back, make a release or label a derivative stream, s
 | | |
 |---|---|
 | Python 3 | developed with 3.14; plain Python 3 |
-| Pillow, numpy | `pip install -r requirements.txt` (the graticule, labels and frames are drawn with Pillow) |
+| Pillow, numpy | `pip install -r requirements.txt` (the graticule, labels and frames are drawn with Pillow). `cea708.py`, `cea708_decode.py`, `test_cea708.py` and `dtvcc_ts.py` need neither (they stub them when importing `build.py`) |
 | ffmpeg | developed with 8.1.1. Needs the encoders `libx264` (default codec), `mpeg2video` and `ac3`, the `mpegts` muxer and the `aevalsrc` source. `drawtext`/freetype is **not** needed |
 | a TrueType font | with Latin-1 and symbol glyphs. Found automatically on macOS (Arial, Arial Unicode) and Linux (DejaVu, Liberation); otherwise set `CEA608_FONT` and `CEA608_FONT_BOLD` |
 | git | optional; only for the burned-in version label |
@@ -52,6 +56,8 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 | `--scc` | also write the SCC file of the field 1 caption data (`CEA608-conformance-<version>-field1.scc`) next to the `.ts`; the same file for every format and codec |
 | `--scc-only` | write only the SCC file: no video is rendered, ffmpeg is not needed, and `TESTS.md` and `cards.json` are not touched (the release workflow uses this once) |
 | `--mp4` | also write a small constant-quality (CRF 21) H.264 + AAC `.mp4` next to the `.ts` (H.264 only). The captions stay in the H.264 SEI (no `c608`/`c708` track, no PMT descriptor); see "The MP4 version" in the README |
+| `--dtvcc off\|both\|only` | CEA-708: **both** adds the 608 captions up-converted to DTVCC services 1-4 next to the 608 data; **only** leaves the 608 pairs out (a 708-only stream); default **off**. The file name gets `-dtvcc` / `-dtvcc-only`; see "The CEA-708 variant" |
+| `--dtvcc-swap showhide\|toggle` | how the up-converter swaps the two pop-on window sets: HideWindows + DisplayWindows (default) or ToggleWindows |
 
 A 720p59 build takes about a minute and a 480i59 build about half that. The output is a constant 4 Mbps
 transport stream, so each is about 304 MB for the current 10:08 length. `out/` is git-ignored: publish the
@@ -136,6 +142,57 @@ SEI of each access unit, with correct timestamps for the B-frames. The carrier i
 Practical notes: raw elementary streams need `-fflags +genpts` when muxed; a closed GOP with MPEG-2 needs
 `-sc_threshold 1000000000`.
 
+### The CEA-708 variant (`--dtvcc`)
+
+`build.py --dtvcc both` adds the same captions as CEA-708 (DTVCC) data to the stream; nothing else changes (picture,
+cards, timing, the 608 data). It is an **up-conversion**: the byte pairs of the four 608 data channels are followed
+exactly as `reference.py` follows them and each command is translated to the 708 commands that produce the same
+picture. The expected result of every card is therefore the one on screen (and in `TESTS.md`); what is different is the
+decoder path being tested. The converter (`cea708.py`) is written from the specification, not ported from another
+converter, so that converters can be compared with it (their differences are findings, not necessarily bugs of either).
+
+**Transport.** The DTVCC data follows the 608 pairs in the same `cc_data()` of every picture: `cc_type` 3 starts a
+caption channel packet and `cc_type` 2 continues it (CTA-708-E 4.3), what is left of the 10 (720p59) or 20 (480i59)
+triplets after the NTSC pairs is the bandwidth (the 608 data is part of the 9600 bps of 4.1). Per picture the
+converter sends one packet (rolling sequence number, size in byte pairs, a null service block header when space is left)
+with as many queued syntactic elements as fit, in service blocks of up to 31 bytes; an element is never split. A picture with nothing
+to send carries only padding. `--dtvcc only` leaves out the NTSC pairs (and the PMT lists no 608 entry).
+
+**Services.** CC1-CC4 are services 1-4. The PMT `caption_service_descriptor` gets one entry per service (`digital_cc` 1,
+`caption_service_number`, `wide_aspect_ratio` 1 for 720p59 and 0 for 480i59) next to the 608 entry. Every service starts
+with Reset (8.9.3).
+
+**Mapping** (all windows left-justified, left-to-right, scroll up, snap, transparent fill: window styles 2 and 5 of Table 26,
+pen style 1, so white text on a solid black character background like a 608 decoder; priority = window id):
+
+| 608 | 708 |
+|---|---|
+| displayed / non-displayed memory | two sets of four windows (ids 0-3 and 4-7); the 608 four-row limit means a set never needs more. The end-of-caption command swaps them with HideWindows + DisplayWindows in one element (or ToggleWindows with `--dtvcc-swap toggle`) |
+| a pop-on or paint-on row | its own 1-row, 32-column window at the 608 row, defined when the row is first written (10-A 27.2.2.2); ENM / EDM delete the windows of that memory; a fifth row deletes the window of the oldest |
+| roll-up (RU2-4) | one window of *depth* rows whose bottom row is the base row; CR is the 708 CR code (the row is first selected with SetPenLocation, the window is defined again at every CR so a receiver can tune in at any row); a PAC that moves the base row moves the window with DefineWindow (an update keeps the text, 8.10.5.2); a depth change writes the new window hidden and swaps it in |
+| column | window column 0 is 608 column 1; on 16:9 the 32 columns are centred in the 42-column grid (anchor horizontal 25, 708-E 8.2 and 8.5.1.1), on 4:3 the anchor horizontal is 0; a text row is 5 grid cells high and a column 5 wide (8.5.1.3 c) |
+| PAC, mid-row code, background / foreground attribute code, FON | SetPenAttributes (italics, underline) and SetPenColor (foreground colour and flash, background colour and opacity); the codes that occupy a cell in 608 write a space after the pen command; PAC attribute inheritance (608-E C.7) is applied by the converter |
+| tab offset, backspace | SetPenLocation when the next character is written; the 708 BS code where the pen is known to follow the character, else SetPenLocation + transparent space |
+| DER | a one-row window is replaced by a hidden new one holding the kept part and swapped in; otherwise SetPenLocation + transparent spaces (or HCR at column 1) |
+| text | G0, G1 and G2 (`cea708.text_bytes`); a character at column 32 is preceded by SetPenLocation (708 says only "replace or discard", 8.4.8); caption text not followed by a command ends with ETX (8.6) |
+| loss of data (608-E C.21, 45 frames) | DeleteWindows of every window (`erase_on_loss`) |
+
+**What 708 cannot say.** 608 characters without a 708 code point are mapped to the nearest one: the solid block
+(608 `0x7F`) to G2 `0x30` and the em dash to G2 `0x7D` (a horizontal line); the 608 transparent space (`0x11 0x39`) is written as a space with a transparent pen background for that cell only.
+`test_cea708.py` and `dtvcc_ts.py --check` treat those as equal. Nothing of 708 beyond the 608 feature set is generated
+(no fonts, pen sizes, justification, borders, effects, Delay, more than one window style).
+
+**Bandwidth and timing.** Elements wait for bandwidth, so the 708 caption can run a few frames behind the 608 one when
+both channels of a card send bursts (the longest wait is reported by `build.py`; `test_cea708.py` prints the lag, 3 frames
+at most today). The comparison calls a 708 state *coalesced* when a lagging decoder shows two 608 states in one step and
+*transient* when a 708 command sequence passes through a state the 608 decoder never shows; both are counted, any other
+difference is a failure.
+
+**Checking.** `python test_cea708.py` (generator level) and `python dtvcc_ts.py STREAM.ts --check` (the finished
+stream: H.264 SEI or MPEG-2 user data, display order from the pts / temporal reference). `ccextractor -svc 1` (0.96.5)
+decodes service 1 of such a stream (it shows the pop-on captions only with the default HideWindows + DisplayWindows, not with
+ToggleWindows; that is a ccextractor limitation, not a property of the stream).
+
 ## Adding or changing a test card
 
 Cards live in `testplan.py`. A card is a function decorated with `@seg`:
@@ -184,7 +241,7 @@ def p01(c, t0):                                                            # c: 
 * The caption data is written to an SCC file (`--scc`), which carries field 1 only. Writing it to an **MCC
   (MacCaption)** file - per-frame `cc_data` as text, which unlike SCC can carry both fields - and embedding that
   file in a separate step would also make field 2 inspectable and reusable.
-* CEA-708 (DTVCC) services, XDS and Text mode are not generated.
+* CEA-708 (DTVCC) is generated only as the up-conversion of the 608 captions (`--dtvcc`); native 708 features, XDS and Text mode are not generated.
 * The annotated screenshot in `images/` is generated by `screenshot.py`, and the release workflow checks that the committed
   copy shows the current cards (card, test number, text of the banner), not the pixels. The check does not notice a change
   to the layout code: bump `LAYOUT` in `screenshot.py` when the drawing of the frame or of the callouts changes. The image

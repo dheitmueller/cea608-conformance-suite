@@ -121,7 +121,7 @@ knowing.
 | D01-D09 | Paint-on captions, backspace, delete-to-end-of-row, switching between caption styles, repeated control codes |
 | S01-S05, H01 | Caption timing against the video, persistence of an idle caption, loss of caption data and invalid data, independent channels |
 
-Not covered: CEA-708 (DTVCC) services, XDS data and Text mode (T1-T4).
+Not covered: XDS data, Text mode (T1-T4) and the CEA-708 features that have no CEA-608 equivalent (see "The CEA-708 variant").
 
 ## The stream
 
@@ -151,7 +151,8 @@ Each stream can also be built as a small **MP4** (`build.py --mp4`, H.264 only),
 stream, or when file size matters. It is made from the same picture and caption data, but encoded at constant quality (CRF 21,
 about 0.4 Mbps, roughly a tenth of the size of the 4 Mbps transport stream) with AAC stereo audio (96 kbps) instead of AC-3.
 
-**The captions are carried only in the video stream, as SEI, exactly as in the transport stream**: the ATSC A/53 `cc_data` (608) sits in the ITU-T T.35 `GA94` SEI of each H.264 access unit. The MP4 has **no separate caption
+**The captions are carried only in the video stream, as SEI, exactly as in the transport stream**: the ATSC A/53 `cc_data` (608,
+and 708 if built with `--dtvcc`) sits in the ITU-T T.35 `GA94` SEI of each H.264 access unit. The MP4 has **no separate caption
 track** (no QuickTime `c608`/`c708` track), and no program table, so there is no `caption_service_descriptor` either. A player
 or tool that reads captions from the H.264 SEI (ffmpeg, ccextractor, VLC and most broadcast-oriented decoders) shows them; one
 that only looks for a caption track (Apple's QuickTime and AVFoundation-based players, for example) may show none, which is then
@@ -160,6 +161,15 @@ a finding about that product and not about the file. The MP4 is not meant for tr
 Either format can also be generated with MPEG-2 video instead of H.264, and without the program-table caption
 descriptor; see [DEVELOPING.md](DEVELOPING.md). The program table carries an ATSC `caption_service_descriptor`
 with a single entry for the CEA-608 data stream (A/65:2013; the 608 data itself identifies CC1-CC4).
+
+### The CEA-708 variant
+
+The same cards can also be carried as **CEA-708 (DTVCC)**: `build.py --dtvcc both` (see [DEVELOPING.md](DEVELOPING.md))
+adds the 608 captions up-converted to DTVCC services 1-4 (CC1-CC4 become services 1-4) next to the unchanged 608
+data, and `--dtvcc only` leaves the 608 data out. The expected result of every card is the same, so the 708 stream checks
+the 708 path of a decoder or of a 608-to-708 converter against the same cards. Characters that 708 has no code for
+(the 608 solid block and em dash) are shown as the nearest 708 character. The up-converter and a **reference 708 decoder**
+are in `cea708.py` and `cea708_decode.py`; `dtvcc_ts.py` decodes the 708 data of a stream with that decoder.
 
 The 480i59 picture is drawn at 640x480 and scaled to 720x480, so it looks correct on a player that honors the
 pixel aspect ratio; a player that ignores it will show the picture stretched, which is a property of that
@@ -171,10 +181,11 @@ The cards cite sections and page numbers of these documents; they are not includ
 copies:
 
 * **CTA-608-E** (ANSI/CTA-608-E S-2019), *Line 21 Data Services*.
-* **CEA-CEB-10-A** (December 2002), *EIA-708-B Implementation Guidance* (only its guidance about CEA-608 data
-  carried in `cc_data` is used).
+* **CEA-CEB-10-A** (December 2002), *EIA-708-B Implementation Guidance* (its guidance about CEA-608 data
+  carried in `cc_data`, and section 27.2 on transcoding 608 captions to 708).
 * **ATSC A/65:2013** (program-table descriptor syntax) and **CTA-708-E** (its 16:9 behavior and caption
-  metadata) were consulted for the signalling and widescreen notes above.
+  metadata; for the CEA-708 variant also the packet, service block, window and pen layers) were consulted for the
+  signalling, widescreen and 708 notes.
 
 Page numbers are the **printed** page numbers, not PDF page numbers. This is not an official conformance
 suite: the expected results are the author's reading of those documents.
