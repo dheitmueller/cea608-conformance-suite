@@ -19,7 +19,7 @@ from cea608 import Chan, Field, sec2f
 
 STATIC = {"G01", "G02", "G03", "C01a", "C01b", "C01c", "C02", "C03a", "C03b", "C03c", "C03d", "C03e", "C03f", "C04",
           "A01a", "A01b", "A01c", "A01d", "A02a", "A02b", "A02c", "A02d", "A03a", "A03b", "A03c", "A03d",
-          "A04", "A05a", "A05b", "A05c", "A05d", "A06", "A09a", "A09b", "A09c", "A10"}
+          "A04", "A05a", "A05b", "A05c", "A05d", "A06", "A09a", "A09b", "A09c", "A10", "A12"}
 # P05 (five rows) is left out: 608-E leaves the result implementation-defined; the model keeps the newest four.
 MIDROW = {b: (b[0], b.endswith("u")) for b in "w wu g gu b bu c cu r ru y yu m mu".split()}
 
@@ -153,6 +153,29 @@ CELLS = [
 ]
 
 
+def background_across_midrow():
+    """6.2: a Background Attribute code lasts until the end of the row, so mid-row codes (spacing attributes) change the
+    color of the text and the cells they occupy but not the background (card A12); the next row starts with the default
+    background.  Returns the number of differences."""
+    f = Field(0)
+    c = Chan("CC1", f, 1, True)
+    c.popon(1.5, [testplan.R(5, "{bg:b}X{y}Y{w}Z"), testplan.R(7, "{y}Q")])
+    fd = reference.FieldDecoder(f.pairs)
+    fd.run()
+    snap = fd.states[1][-1][1]
+    bad = 0
+    # row 5: [bg cell] X [y cell] Y [w cell] Z, all on blue; row 7: [y cell] Q on the default (black) background
+    for row, col, ch, fg, bg in [(5, 1, " ", "w", "b"), (5, 2, "X", "w", "b"), (5, 3, " ", "y", "b"), (5, 4, "Y", "y", "b"),
+                                 (5, 5, " ", "w", "b"), (5, 6, "Z", "w", "b"), (7, 1, " ", "y", "k"), (7, 2, "Q", "y", "k")]:
+        x = snap[row - 1][col - 1]
+        if not x or (x[0], x[1], x[4]) != (ch, fg, bg):
+            bad += 1
+            print(f"background across mid-row codes: row {row} col {col}: model {(x[0], x[1], x[4]) if x else None}, "
+                  f"intended {(ch, fg, bg)}")
+    print(f"background across mid-row codes: {bad} differ")
+    return bad
+
+
 def row_texts(snap):
     out = {}
     for r, row in enumerate(snap):
@@ -220,6 +243,7 @@ def main():
     print(f"{checked} card/channel layouts checked, {bad} differ")
     bad += dynamic_checks(fields, starts)
     bad += midrow_after_pac()
+    bad += background_across_midrow()
     return 1 if bad else 0
 
 

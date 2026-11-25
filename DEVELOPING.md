@@ -54,7 +54,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 | `--mp4` | also write a small constant-quality (CRF 21) H.264 + AAC `.mp4` next to the `.ts` (H.264 only). The captions stay in the H.264 SEI (no `c608`/`c708` track, no PMT descriptor); see "The MP4 version" in the README |
 
 A 720p59 build takes about a minute and a 480i59 build about half that. The output is a constant 4 Mbps
-transport stream, so each is about 304 MB for the current 10:08 length. `out/` is git-ignored: publish the
+transport stream, so each is about 307 MB for the current 10:13 length. `out/` is git-ignored: publish the
 results as release assets (they are over GitHub's 100 MB file limit).
 
 ### The version label

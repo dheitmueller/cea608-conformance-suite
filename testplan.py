@@ -407,6 +407,19 @@ def a10(c, t0):
     c.popon(t0, [R(6, "Steady, then {FON}this flashes")])
 
 
+@seg("A12", "Background kept across mid-row codes", "background attribute code, then mid-row codes on the same row",
+     "one colored box under the whole row while the text color changes inside it; the next row has no box", 5.0,
+     [E("6.2", 16, OPT), E("Table 3", 17, OPT), E("F.1.1.3 Table 51", 99, REG)],
+     "A Background Attribute code sets the background color for the rest of the row, or until another Background "
+     "Attribute code (6.2). A mid-row code is a spacing attribute: it changes the text color and the cell it "
+     "occupies is shown as a space, but it does not change the background. The first row is white, yellow, cyan, "
+     "white words in one blue box; the second has a red box with white, green and white text; the third has no "
+     "background code, so it has the default background (a new row starts with the default).")
+def a12(c, t0):
+    c.popon(t0, [R(5, "{bg:b}White{y}yellow{c}cyan{w}white"), R(7, "{bg:r}Red box,{g}green text,{w}white"),
+                 R(9, "{y}No box on this row")])
+
+
 # ================================================================ POP-ON
 group("Pop-on style and memory control")
 

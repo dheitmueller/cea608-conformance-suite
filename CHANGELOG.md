@@ -8,14 +8,14 @@ against an earlier release stays comparable.
 
 Not released yet.
 
-* **12 new cards (82 in all, 10:08 long)**, added to the original 70, which keep their ids; the
+* **13 new cards (83 in all, 10:13 long)**, added to the original 70, which keep their ids; the
   start time and the test number of a card after an inserted one move. G03 (two separated rows of different colors),
   H02 (a pair for another channel between two copies of a command, UNSPECIFIED), S06 (a zero pair in the middle of a row,
   UNSPECIFIED), S07 (the display is enabled 12-18 valid frames after a loss of data), S08 (a valid pair resets the count of
   frames without data), A10b (Flash On over occupied text), A11 (attribute inheritance next to an erased cell and a written
   space), D10 (Text Mode data does not touch the caption), R07b (a PAC moves a roll-up by one row), R10b (a roll-up deeper
-  than its base row allows), R12a (default base row after the only character was erased) and R12b (a roll-up resumed after
-  Text Mode, UNSPECIFIED). The Expected text of A01 and R02 now says that the rows keep their grid rows. The reference model
+  than its base row allows), R12a (default base row after the only character was erased) R12b (a roll-up resumed after
+  Text Mode, UNSPECIFIED) and A12 (a background kept across mid-row codes, at the end of series A). The Expected text of A01 and R02 now says that the rows keep their grid rows. The reference model
   holds the display disabled for 15 frames after a loss of data and has a Text Mode memory. A result recorded against v1.2
   stays comparable for the cards that were already there.
 
