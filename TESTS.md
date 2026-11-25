@@ -143,11 +143,11 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 *Starts 00:38.00, lasts 5 s, channels: CC1, CC3*
 
-**Purpose.** The 16 special characters sent as two-byte codes (registered, degree, half, inverted query, trademark, cent, pound, music note, accented a/e/i/o/u). The transparent space (0x39) is omitted from the visible row.
+**Purpose.** The 16 special characters sent as two-byte codes (registered, degree, half, inverted query, trademark, cent, pound, music note, accented a/e/i/o/u). The transparent space (0x39) takes a cell but has no visible glyph, so it is not in the row of characters; row 11 puts two of them inside a run of red background, where a decoder that treats the code as an ordinary space draws red there and one that ignores it closes the gap. They are not adjacent, so the pairs cannot be taken for a redundant copy.
 
 **Test.** 0x11 0x30-0x3F (0x19 on channel 2).
 
-**Expected.** ® ° ½ ¿ ™ ¢ £ ♪ à è â ê î ô û
+**Expected.** ® ° ½ ¿ ™ ¢ £ ♪ à è â ê î ô û; row 11: red boxes behind A, B and C with a one column gap showing the video between them
 
 **References.**
 

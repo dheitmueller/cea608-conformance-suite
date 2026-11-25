@@ -178,13 +178,16 @@ for _n, (_lbl, _txt) in enumerate([
 
 
 @seg("C02", "Special characters", "0x11 0x30-0x3F (0x19 on channel 2)",
-     " ".join(SPECIAL.replace(" ", "")), 5.0,
+     " ".join(SPECIAL.replace(" ", "")) + "; row 11: red boxes behind A, B and C with a one column gap showing the video between them", 5.0,
      [E("F.1.1.1 Table 49", 96, REG)],
      "The 16 special characters sent as two-byte codes (registered, degree, half, inverted query, "
-     "trademark, cent, pound, music note, accented a/e/i/o/u). The transparent space (0x39) is omitted from "
-     "the visible row.")
+     "trademark, cent, pound, music note, accented a/e/i/o/u). The transparent space (0x39) takes a cell "
+     "but has no visible glyph, so it is not in the row of characters; row 11 puts two of them inside a run "
+     "of red background, where a decoder that treats the code as an ordinary space draws red there and one "
+     "that ignores it closes the gap. They are not adjacent, so the pairs cannot be taken for a redundant copy.")
 def c02(c, t0):
-    c.popon(t0, [R(6, "Special characters:"), R(8, " ".join(SPECIAL.replace(" ", "")))])
+    c.popon(t0, [R(6, "Special characters:"), R(8, " ".join(SPECIAL.replace(" ", ""))),
+                 R(11, "{bg:r}A{s:39}B{s:39}C")])
 
 
 _LANGS = [

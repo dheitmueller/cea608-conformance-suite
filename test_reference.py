@@ -72,6 +72,10 @@ def cells(rows, name):
                     fg, ul, it = "w", b.endswith("u"), True
                 elif b == "FA":
                     fg, ul = "k", False
+                elif b.startswith("s:"):                     # raw special character
+                    ch = cea608.SPECIAL[int(b[2:], 16) - 0x30]
+                    if ch != "\xa0":                              # 0x39, the transparent space, draws nothing
+                        out[(r.row, col)] = (ch, fg, ul, it)
                 elif b.startswith(("bg:", "BT", "FON")):
                     pass
                 else:

@@ -32,6 +32,11 @@ Not released yet.
   (27 MB against 264 MB for the 720p59 stream). The captions are carried only in the H.264 SEI, as in the transport
   stream: there is no QuickTime `c608`/`c708` track.
 
+* **Cards extended with codes found in another suite's stream.** A byte-level comparison with Rodrigo Madera's CEA-x08
+  EIA-608 stream (https://github.com/madera/CEA-x08, v3.0, MIT) showed a few codes it sends that ours never did. The
+  card list, timing and expectations of every other card are unchanged; the cards below carry the extra rows.
+  * C02 now sends the transparent space (`0x11 0x39`) inside a run of red background.
+
 ## v1.2 (2026-10-14)
 
 * **Fixed the `cc_data` padding and header** (CTA-708-E 4.3.5 and Table 2). Unused triplets were `F8 00 00`

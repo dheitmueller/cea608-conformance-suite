@@ -108,7 +108,7 @@ class Decoder:
         self.hidden.erase()
         self.mark()
 
-    def put(self, ch):
+    def put(self, ch, al=None):
         mem = self.target
         row = self.cur_row()
         if self.mode not in ("roll", "text"):
@@ -117,8 +117,8 @@ class Decoder:
             c = mem.grid[row - 1][self.col - 2]
             self.style = [c[1], c[2], c[3], c[4], c[5], c[6]]
         self.inherit = False
-        fg, ul, it, bg, al, fl = self.style
-        mem.grid[row - 1][self.col - 1] = (ch, fg, ul, it, bg, al, fl)
+        fg, ul, it, bg, pen_al, fl = self.style
+        mem.grid[row - 1][self.col - 1] = (ch, fg, ul, it, bg, al or pen_al, fl)      # al: this cell only
         if self.col < COLS:
             self.col += 1
         if mem is self.shown:
@@ -347,7 +347,10 @@ class FieldDecoder:
             d.midrow(b)
         elif lo == 1 and 0x30 <= b <= 0x3F:
             self.cur = ch
-            d.put(SPECIAL[b - 0x30])
+            if b == 0x39:                                    # transparent space: a cell with no background box
+                d.put(" ", al="t")
+            else:
+                d.put(SPECIAL[b - 0x30])
         elif lo == 0 and 0x20 <= b <= 0x2F:
             self.cur = ch
             d.background(b)
