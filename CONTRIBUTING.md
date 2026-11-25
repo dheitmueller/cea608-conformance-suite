@@ -72,4 +72,4 @@ It can also be started by hand (Actions tab, "Run workflow"): that builds the st
 artifacts for 14 days without making a release or touching the Pages site; the version label of such a build is the short revision.
 
 The Action builds on Ubuntu with the distribution's ffmpeg and DejaVu fonts, so the picture's typeface differs
-slightly from a macOS build. After a release, replace the README screenshot if the layout changed.
+slightly from a macOS build. Do not change the README screenshot in a commit that changes cards or the layout (it makes merges conflict); refresh it (`python screenshot.py --version-label vX.Y`) in a dedicated commit just before tagging a release. The release workflow fails if it is stale.

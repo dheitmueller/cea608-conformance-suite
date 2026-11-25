@@ -190,3 +190,7 @@ def p01(c, t0):                                                            # c: 
   to the layout code: bump `LAYOUT` in `screenshot.py` when the drawing of the frame or of the callouts changes. The image
   carries the version label of the build that made it (the latest release when it is regenerated), and its look depends on the
   fonts: for the look of the released streams use DejaVu Sans (`CEA608_FONT`, `CEA608_FONT_BOLD`).
+  **Do not regenerate it in a commit that adds or moves cards or changes the layout**: several commits change it and the PNG
+  makes merges conflict. Refresh it in a dedicated commit just before tagging a release
+  (`python screenshot.py --version-label vX.Y`); until then `screenshot.py --check` reports it stale, and the release
+  workflow fails on a stale one, which is the reminder.
