@@ -39,6 +39,9 @@ Not released yet.
   * A09c row 7 now continues from black to black underlined (`0x17 0x2F`, FAU) on its yellow background.
   * A03a and A03c now send column 1 with the indenting PAC for indent 0 (`0x50`, `0x51` underlined). The generator
     used to fold indent 0 into the white color PAC (`0x40`), so no card sent it.
+  * A09a and A09b now also send the five background colors that were missing, so all 16 background codes appear
+    across the suite: magenta opaque (end of A09a row 11); white, cyan, yellow and magenta semi-transparent (the
+    end of each A09b row, switched in after another background).
 
 ## v1.2 (2026-10-14)
 

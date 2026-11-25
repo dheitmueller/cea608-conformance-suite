@@ -377,11 +377,14 @@ def a08(c, t0):
 
 for _id, _t, _rows, _exp in [
         ("A09a", "Background colors (opaque)", ["{bg:r}Opaque red background", "{bg:g}Opaque green background",
-                                                "{bg:b}Opaque blue background", "{bg:c}Opaque cyan background"],
-         "colored box behind each row (white text)"),
-        ("A09b", "Background colors (semi-transparent)", ["{bg:rs}Semi-transparent red", "{bg:gs}Semi-transparent green",
-                                                          "{bg:bs}Semi-transparent blue", "{bg:ks}Semi-transparent black"],
-         "video shows through the box (renderer may fall back to opaque)"),
+                                                "{bg:b}Opaque blue background", "{bg:c}Opaque cyan background{bg:m} magenta"],
+         "colored box behind each row (white text); the last row ends in a magenta box"),
+        ("A09b", "Background colors (semi-transparent)", ["{bg:rs}Semi-transparent red{bg:ws}{FA} white",
+                                                          "{bg:gs}Semi-transparent green{bg:cs} cyan",
+                                                          "{bg:bs}Semi-transparent blue{bg:ys} yellow",
+                                                          "{bg:ks}Semi-transparent black{bg:ms} magenta"],
+         "video shows through the box (renderer may fall back to opaque); each row ends in a second box: "
+         "white (black text), cyan, yellow, magenta"),
         ("A09c", "Foreground black and transparent background", ["{bg:w}{FA}Black text on white", "{bg:y}{FA}Black on yellow {FAU}underlined",
                                                                   "{BT}Transparent background", "{bg:k}Opaque black default"],
          "black text on light boxes; the end of row 7 also underlined; third row without any box")]:

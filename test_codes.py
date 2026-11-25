@@ -78,6 +78,19 @@ def main():
             check(f"{cid} row 5 starts in column 1, white, ul={ul} (field {fi + 1})",
                   c is not None and c[0] == "0" and c[1:3] == ("w", ul), str(c))
 
+    # A09a/A09b: the background colors the first version of the cards left out (magenta opaque, white, cyan,
+    # yellow and magenta semi-transparent), each switched in mid-row after another background
+    for name, code in (("magenta opaque", 0x2C), ("white semi-transparent", 0x21), ("cyan semi-transparent", 0x27),
+                       ("yellow semi-transparent", 0x2B), ("magenta semi-transparent", 0x2D)):
+        sends(f"background {name} 0x10 0x{code:02X}", 0x10, code)
+    for fi in (0, 1):
+        for cid, row_no, bg, al in (("A09a", 11, "m", "o"), ("A09b", 5, "w", "s"), ("A09b", 7, "c", "s"),
+                                    ("A09b", 9, "y", "s"), ("A09b", 11, "m", "s")):
+            row = snapshot(cid, fi)[row_no - 1]
+            last = [c for c in row if c][-1]
+            check(f"{cid} row {row_no} ends on a {bg} box, alpha {al} (field {fi + 1})",
+                  last[4:6] == (bg, al), str(last))
+
     print(f"{len(FAILS)} failed")
     return 1 if FAILS else 0
 

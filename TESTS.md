@@ -592,7 +592,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** background/foreground attribute codes (standard space + code with automatic BS).
 
-**Expected.** colored box behind each row (white text)
+**Expected.** colored box behind each row (white text); the last row ends in a magenta box
 
 **References.**
 
@@ -607,7 +607,7 @@ Citations use **printed** page numbers (not PDF page numbers). A card with two l
 
 **Test.** background/foreground attribute codes (standard space + code with automatic BS).
 
-**Expected.** video shows through the box (renderer may fall back to opaque)
+**Expected.** video shows through the box (renderer may fall back to opaque); each row ends in a second box: white (black text), cyan, yellow, magenta
 
 **References.**
 
